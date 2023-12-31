@@ -23,11 +23,10 @@ import com.idormy.sms.forwarder.core.webview.AgentWebFragment
 import com.idormy.sms.forwarder.entity.ImageInfo
 import com.idormy.sms.forwarder.fragment.MarkdownFragment
 import com.idormy.sms.forwarder.fragment.ServiceProtocolFragment
-import com.idormy.sms.forwarder.service.NotifyService
+import com.idormy.sms.forwarder.service.NotificationService
 import com.xuexiang.xpage.base.XPageFragment
 import com.xuexiang.xpage.core.PageOption
 import com.xuexiang.xui.utils.ColorUtils
-import com.xuexiang.xui.utils.ResUtils
 import com.xuexiang.xui.widget.dialog.DialogLoader
 import com.xuexiang.xui.widget.dialog.materialdialog.DialogAction
 import com.xuexiang.xui.widget.dialog.materialdialog.MaterialDialog
@@ -35,6 +34,7 @@ import com.xuexiang.xui.widget.dialog.materialdialog.MaterialDialog.SingleButton
 import com.xuexiang.xui.widget.imageview.preview.PreviewBuilder
 import com.xuexiang.xutil.XUtil
 import com.xuexiang.xutil.common.StringUtils
+import com.xuexiang.xutil.resource.ResUtils.getString
 import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.NetworkInterface
@@ -70,19 +70,19 @@ class CommonUtils private constructor() {
             }.negativeText(R.string.lab_disagree).onNegative { dialog, _ ->
                 dialog.dismiss()
                 DialogLoader.getInstance().showConfirmDialog(
-                    context, ResUtils.getString(R.string.title_reminder), String.format(
-                        ResUtils.getString(R.string.content_privacy_explain_again), ResUtils.getString(R.string.app_name)
-                    ), ResUtils.getString(R.string.lab_look_again), { dialog, _ ->
+                    context, getString(R.string.title_reminder), String.format(
+                        getString(R.string.content_privacy_explain_again), getString(R.string.app_name)
+                    ), getString(R.string.lab_look_again), { dialog, _ ->
                         dialog.dismiss()
                         showPrivacyDialog(context, submitListener)
-                    }, ResUtils.getString(R.string.lab_still_disagree)
+                    }, getString(R.string.lab_still_disagree)
                 ) { dialog, _ ->
                     dialog.dismiss()
                     DialogLoader.getInstance().showConfirmDialog(
-                        context, ResUtils.getString(R.string.content_think_about_it_again), ResUtils.getString(R.string.lab_look_again), { dialog, _ ->
+                        context, getString(R.string.content_think_about_it_again), getString(R.string.lab_look_again), { dialog, _ ->
                             dialog.dismiss()
                             showPrivacyDialog(context, submitListener)
-                        }, ResUtils.getString(R.string.lab_exit_app)
+                        }, getString(R.string.lab_exit_app)
                     ) { dialog, _ ->
                         dialog.dismiss()
                         XUtil.exitApp()
@@ -100,7 +100,7 @@ class CommonUtils private constructor() {
          * @return 隐私政策说明
          */
         private fun getPrivacyContent(context: Context): SpannableStringBuilder {
-            return SpannableStringBuilder().append("    ").append(ResUtils.getString(R.string.privacy_content_1)).append(" ").append(ResUtils.getString(R.string.app_name)).append("!\n").append("    ").append(ResUtils.getString(R.string.privacy_content_2)).append("    ").append(ResUtils.getString(R.string.privacy_content_3)).append(getPrivacyLink(context, PRIVACY_URL)).append(ResUtils.getString(R.string.privacy_content_4)).append("    ").append(ResUtils.getString(R.string.privacy_content_5)).append(getPrivacyLink(context, PRIVACY_URL)).append(ResUtils.getString(R.string.privacy_content_6)).append("    ").append(ResUtils.getString(R.string.privacy_content_7))
+            return SpannableStringBuilder().append("    ").append(getString(R.string.privacy_content_1)).append(" ").append(getString(R.string.app_name)).append("!\n").append("    ").append(getString(R.string.privacy_content_2)).append("    ").append(getString(R.string.privacy_content_3)).append(getPrivacyLink(context, PRIVACY_URL)).append(getString(R.string.privacy_content_4)).append("    ").append(getString(R.string.privacy_content_5)).append(getPrivacyLink(context, PRIVACY_URL)).append(getString(R.string.privacy_content_6)).append("    ").append(getString(R.string.privacy_content_7))
         }
 
         /**
@@ -110,7 +110,7 @@ class CommonUtils private constructor() {
         @Suppress("SameParameterValue")
         private fun getPrivacyLink(context: Context, privacyUrl: String): SpannableString {
             val privacyName = String.format(
-                ResUtils.getString(R.string.lab_privacy_name), ResUtils.getString(R.string.app_name)
+                getString(R.string.lab_privacy_name), getString(R.string.app_name)
             )
             val spannableString = SpannableString(privacyName)
             spannableString.setSpan(object : ClickableSpan() {
@@ -143,7 +143,7 @@ class CommonUtils private constructor() {
         @JvmStatic
         fun gotoProtocol(fragment: XPageFragment?, isPrivacy: Boolean, isImmersive: Boolean) {
             PageOption.to(ServiceProtocolFragment::class.java).putString(
-                ServiceProtocolFragment.KEY_PROTOCOL_TITLE, if (isPrivacy) ResUtils.getString(R.string.title_privacy_protocol) else ResUtils.getString(
+                ServiceProtocolFragment.KEY_PROTOCOL_TITLE, if (isPrivacy) getString(R.string.title_privacy_protocol) else getString(
                     R.string.title_user_protocol
                 )
             ).putBoolean(ServiceProtocolFragment.KEY_IS_IMMERSIVE, isImmersive).open(fragment!!)
@@ -235,17 +235,17 @@ class CommonUtils private constructor() {
         }
 
         //是否合法的IP地址
-        fun checkIP(IP: String): String {
-            if (TextUtils.isEmpty(IP)) return "Neither"
+        fun checkIP(ip: String): String {
+            if (TextUtils.isEmpty(ip)) return "Neither"
 
-            if (IP.contains(".")) {
+            if (ip.contains(".")) {
                 val chunkIPv4 = "([\\d]|[1-9][\\d]|1[\\d][\\d]|2[0-4][\\d]|25[0-5])"
                 val pattenIPv4 = Pattern.compile("^($chunkIPv4\\.){3}$chunkIPv4$")
-                return if (pattenIPv4.matcher(IP).matches()) "IPv4" else "Neither"
-            } else if (IP.contains(":")) {
+                return if (pattenIPv4.matcher(ip).matches()) "IPv4" else "Neither"
+            } else if (ip.contains(":")) {
                 val chunkIPv6 = "([\\da-fA-F]{1,4})"
                 val pattenIPv6 = Pattern.compile("^($chunkIPv6\\:){7}$chunkIPv6$")
-                return if (pattenIPv6.matcher(IP).matches()) "IPv6" else "Neither"
+                return if (pattenIPv6.matcher(ip).matches()) "IPv6" else "Neither"
             }
             return "Neither"
         }
@@ -273,10 +273,10 @@ class CommonUtils private constructor() {
         fun toggleNotificationListenerService(context: Context) {
             val pm = context.packageManager
             pm.setComponentEnabledSetting(
-                ComponentName(context.applicationContext, NotifyService::class.java), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
+                ComponentName(context.applicationContext, NotificationService::class.java), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
             )
             pm.setComponentEnabledSetting(
-                ComponentName(context.applicationContext, NotifyService::class.java), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
+                ComponentName(context.applicationContext, NotificationService::class.java), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
             )
         }
 
@@ -295,12 +295,13 @@ class CommonUtils private constructor() {
                         val address = addresses.nextElement()
 
                         if (address is Inet4Address || address is Inet6Address) {
-                            ipAddresses.add(address.hostAddress)
+                            address.hostAddress?.let { ipAddresses.add(it) }
                         }
                     }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+                Log.e("CommonUtils", "getIPAddresses: ${e.message}")
             }
 
             return ipAddresses

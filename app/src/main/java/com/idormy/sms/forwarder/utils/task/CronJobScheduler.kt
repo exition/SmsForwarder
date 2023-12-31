@@ -1,11 +1,12 @@
 package com.idormy.sms.forwarder.utils.task
 
-import android.util.Log
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.idormy.sms.forwarder.database.entity.Task
+import com.idormy.sms.forwarder.utils.Log
+import com.idormy.sms.forwarder.utils.TaskWorker
 import com.idormy.sms.forwarder.workers.CronWorker
 import java.util.concurrent.TimeUnit
 
@@ -14,19 +15,19 @@ class CronJobScheduler {
 
     companion object {
 
-        private const val TAG: String = "CronJobScheduler"
+        private val TAG: String = CronJobScheduler::class.java.simpleName
 
         fun scheduleTask(task: Task) {
             val currentTimeMillis = System.currentTimeMillis()
             val delayInMillis = task.nextExecTime.time / 1000 * 1000 - currentTimeMillis
-            val inputData = Data.Builder().putLong("taskId", task.id).build()
+            val inputData = Data.Builder().putLong(TaskWorker.taskId, task.id).build()
             val taskRequest = if (delayInMillis <= 0L) {
-                Log.d(TAG, "任务${task.id}：立即执行，delayInMillis = $delayInMillis")
+                Log.d(TAG, "TASK-${task.id}：立即执行，delayInMillis = $delayInMillis")
                 OneTimeWorkRequestBuilder<CronWorker>()
                     .setInputData(inputData)
                     .build()
             } else {
-                Log.d(TAG, "任务${task.id}：延迟 $delayInMillis 毫秒执行")
+                Log.d(TAG, "TASK-${task.id}：延迟 $delayInMillis 毫秒执行")
                 OneTimeWorkRequestBuilder<CronWorker>()
                     .setInitialDelay(delayInMillis, TimeUnit.MILLISECONDS)
                     .setInputData(inputData)

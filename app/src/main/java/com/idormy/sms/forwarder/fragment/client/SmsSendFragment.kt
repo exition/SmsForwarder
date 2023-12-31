@@ -1,7 +1,6 @@
 package com.idormy.sms.forwarder.fragment.client
 
 import android.annotation.SuppressLint
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,15 +21,14 @@ import com.xuexiang.xhttp2.exception.ApiException
 import com.xuexiang.xpage.annotation.Page
 import com.xuexiang.xrouter.utils.TextUtils
 import com.xuexiang.xui.utils.CountDownButtonHelper
-import com.xuexiang.xui.utils.ResUtils
 import com.xuexiang.xui.widget.actionbar.TitleBar
 import com.xuexiang.xutil.data.ConvertTools
 
-@Suppress("PropertyName")
+@Suppress("PrivatePropertyName")
 @Page(name = "远程发短信")
 class SmsSendFragment : BaseFragment<FragmentClientSmsSendBinding?>(), View.OnClickListener {
 
-    val TAG: String = SmsSendFragment::class.java.simpleName
+    private val TAG: String = SmsSendFragment::class.java.simpleName
     private var mCountDownHelper: CountDownButtonHelper? = null
 
     override fun viewBindingInflate(
@@ -98,14 +96,14 @@ class SmsSendFragment : BaseFragment<FragmentClientSmsSendBinding?>(), View.OnCl
                 val phoneNumbers = binding!!.etPhoneNumbers.text.toString()
                 val phoneRegex = getString(R.string.phone_numbers_regex).toRegex()
                 if (!phoneRegex.matches(phoneNumbers)) {
-                    XToastUtils.error(ResUtils.getString(R.string.phone_numbers_error))
+                    XToastUtils.error(getString(R.string.phone_numbers_error))
                     return
                 }
 
                 val msgContent = binding!!.etMsgContent.text.toString()
                 val msgRegex = getString(R.string.msg_content_regex).toRegex()
                 if (!msgRegex.matches(msgContent)) {
-                    XToastUtils.error(ResUtils.getString(R.string.msg_content_error))
+                    XToastUtils.error(getString(R.string.msg_content_error))
                     return
                 }
 
@@ -132,12 +130,14 @@ class SmsSendFragment : BaseFragment<FragmentClientSmsSendBinding?>(), View.OnCl
                             requestMsg = RSACrypt.encryptByPublicKey(requestMsg, publicKey)
                             Log.i(TAG, "requestMsg: $requestMsg")
                         } catch (e: Exception) {
-                            XToastUtils.error(ResUtils.getString(R.string.request_failed) + e.message)
+                            XToastUtils.error(getString(R.string.request_failed) + e.message)
                             e.printStackTrace()
+                            Log.e(TAG, e.toString())
                             return
                         }
                         postRequest.upString(requestMsg)
                     }
+
                     3 -> {
                         try {
                             val sm4Key = ConvertTools.hexStringToByteArray(HttpServerUtils.clientSignKey)
@@ -146,12 +146,14 @@ class SmsSendFragment : BaseFragment<FragmentClientSmsSendBinding?>(), View.OnCl
                             requestMsg = ConvertTools.bytes2HexString(encryptCBC)
                             Log.i(TAG, "requestMsg: $requestMsg")
                         } catch (e: Exception) {
-                            XToastUtils.error(ResUtils.getString(R.string.request_failed) + e.message)
+                            XToastUtils.error(getString(R.string.request_failed) + e.message)
                             e.printStackTrace()
+                            Log.e(TAG, e.toString())
                             return
                         }
                         postRequest.upString(requestMsg)
                     }
+
                     else -> {
                         postRequest.upJson(requestMsg)
                     }
@@ -180,18 +182,20 @@ class SmsSendFragment : BaseFragment<FragmentClientSmsSendBinding?>(), View.OnCl
                             }
                             val resp: BaseResponse<String> = Gson().fromJson(json, object : TypeToken<BaseResponse<String>>() {}.type)
                             if (resp.code == 200) {
-                                XToastUtils.success(ResUtils.getString(R.string.request_succeeded))
+                                XToastUtils.success(getString(R.string.request_succeeded))
                             } else {
-                                XToastUtils.error(ResUtils.getString(R.string.request_failed) + resp.msg)
+                                XToastUtils.error(getString(R.string.request_failed) + resp.msg)
                             }
                         } catch (e: Exception) {
                             e.printStackTrace()
-                            XToastUtils.error(ResUtils.getString(R.string.request_failed) + response)
+                            Log.e(TAG, e.toString())
+                            XToastUtils.error(getString(R.string.request_failed) + response)
                         }
                         mCountDownHelper?.finish()
                     }
                 })
             }
+
             else -> {}
         }
     }

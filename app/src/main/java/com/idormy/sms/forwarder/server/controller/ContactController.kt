@@ -3,7 +3,7 @@ package com.idormy.sms.forwarder.server.controller
 import android.content.ContentUris
 import android.content.ContentValues
 import android.provider.ContactsContract
-import android.util.Log
+import com.idormy.sms.forwarder.utils.Log
 import com.idormy.sms.forwarder.entity.ContactInfo
 import com.idormy.sms.forwarder.server.model.BaseRequest
 import com.idormy.sms.forwarder.server.model.ContactQueryData
@@ -12,7 +12,7 @@ import com.xuexiang.xutil.XUtil.getContentResolver
 import com.yanzhenjie.andserver.annotation.*
 
 
-@Suppress("PrivatePropertyName")
+@Suppress("PrivatePropertyName", "SameReturnValue")
 @RestController
 @RequestMapping(path = ["/contact"])
 class ContactController {

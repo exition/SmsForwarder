@@ -1,5 +1,3 @@
-@file:Suppress("DEPRECATION")
-
 package com.idormy.sms.forwarder.adapter
 
 import android.annotation.SuppressLint
@@ -12,19 +10,21 @@ import android.widget.TextView
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.idormy.sms.forwarder.R
-import com.idormy.sms.forwarder.entity.task.TaskSetting
+import com.idormy.sms.forwarder.adapter.base.ItemMoveCallback
+import com.idormy.sms.forwarder.entity.TaskSetting
+import java.util.Collections
 
+@Suppress("DEPRECATION")
 class TaskSettingAdapter(
-    val itemList: MutableList<TaskSetting>,
-    private val editClickListener: (Int) -> Unit,
-    private val removeClickListener: (Int) -> Unit
+    var itemList: MutableList<TaskSetting>,
+    private var removeClickListener: ((Int) -> Unit)? = null,
+    private var editClickListener: ((Int) -> Unit)? = null,
 ) : RecyclerView.Adapter<TaskSettingAdapter.ViewHolder>(), ItemMoveCallback.Listener {
 
     private lateinit var touchHelper: ItemTouchHelper
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.adapter_task_setting_item, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_task_setting_item, parent, false)
         return ViewHolder(view)
     }
 
@@ -49,8 +49,17 @@ class TaskSettingAdapter(
         private val dragIcon: ImageView = itemView.findViewById(R.id.iv_drag)
 
         init {
-            editIcon.setOnClickListener(this)
-            removeIcon.setOnClickListener(this)
+            if (removeClickListener == null) {
+                removeIcon.visibility = View.GONE
+            } else {
+                removeIcon.setOnClickListener(this)
+            }
+
+            if (editClickListener == null) {
+                editIcon.visibility = View.GONE
+            } else {
+                editIcon.setOnClickListener(this)
+            }
 
             dragIcon.setOnTouchListener { _, event ->
                 if (event.actionMasked == MotionEvent.ACTION_DOWN) {
@@ -70,8 +79,8 @@ class TaskSettingAdapter(
             val position = adapterPosition
             if (position != RecyclerView.NO_POSITION) {
                 when (v?.id) {
-                    R.id.iv_edit -> editClickListener(position)
-                    R.id.iv_remove -> removeClickListener(position)
+                    R.id.iv_edit -> editClickListener?.let { it(position) }
+                    R.id.iv_remove -> removeClickListener?.let { it(position) }
                 }
             }
         }
@@ -80,53 +89,15 @@ class TaskSettingAdapter(
     override fun onItemMove(fromPosition: Int, toPosition: Int) {
         if (fromPosition < toPosition) {
             for (i in fromPosition until toPosition) {
-                itemList[i] = itemList.set(i + 1, itemList[i])
+                Collections.swap(itemList, i, i + 1)
             }
         } else {
             for (i in fromPosition downTo toPosition + 1) {
-                itemList[i] = itemList.set(i - 1, itemList[i])
+                Collections.swap(itemList, i, i - 1)
             }
         }
         notifyItemMoved(fromPosition, toPosition)
     }
 
-    override fun onDragFinished() {
-        TODO("Not yet implemented")
-    }
-}
-
-class ItemMoveCallback(private val listener: Listener) : ItemTouchHelper.Callback() {
-
-    interface Listener {
-        fun onItemMove(fromPosition: Int, toPosition: Int)
-        fun onDragFinished()
-    }
-
-    override fun getMovementFlags(
-        recyclerView: RecyclerView,
-        viewHolder: RecyclerView.ViewHolder
-    ): Int {
-        val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
-        return makeMovementFlags(dragFlags, 0)
-    }
-
-    override fun onMove(
-        recyclerView: RecyclerView,
-        viewHolder: RecyclerView.ViewHolder,
-        target: RecyclerView.ViewHolder
-    ): Boolean {
-        listener.onItemMove(viewHolder.adapterPosition, target.adapterPosition)
-        return true
-    }
-
-    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-        // Swiping is not needed for this example
-    }
-
-    override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
-        super.onSelectedChanged(viewHolder, actionState)
-        if (actionState == ItemTouchHelper.ACTION_STATE_IDLE) {
-            listener.onDragFinished()
-        }
-    }
+    override fun onDragFinished() {}
 }

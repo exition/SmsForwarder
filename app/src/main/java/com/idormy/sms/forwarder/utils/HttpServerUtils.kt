@@ -3,15 +3,13 @@ package com.idormy.sms.forwarder.utils
 
 import android.text.TextUtils
 import android.util.Base64
-import android.util.Log
 import com.google.gson.Gson
 import com.idormy.sms.forwarder.R
 import com.idormy.sms.forwarder.core.Core
 import com.idormy.sms.forwarder.entity.CloneInfo
 import com.idormy.sms.forwarder.entity.LocationInfo
 import com.idormy.sms.forwarder.server.model.BaseRequest
-import com.xuexiang.xui.utils.ResUtils.getString
-import com.xuexiang.xutil.app.AppUtils
+import com.xuexiang.xutil.resource.ResUtils.getString
 import com.yanzhenjie.andserver.error.HttpException
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -198,6 +196,7 @@ class HttpServerUtils private constructor() {
                 true
             } catch (e: Exception) {
                 e.printStackTrace()
+                Log.e("restoreSettings", e.message.toString())
                 throw HttpException(500, e.message)
                 //false
             }

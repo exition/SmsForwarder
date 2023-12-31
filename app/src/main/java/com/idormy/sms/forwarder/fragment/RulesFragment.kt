@@ -8,30 +8,35 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView.RecycledViewPool
 import com.alibaba.android.vlayout.VirtualLayoutManager
 import com.idormy.sms.forwarder.R
+import com.idormy.sms.forwarder.activity.MainActivity
 import com.idormy.sms.forwarder.adapter.RulePagingAdapter
 import com.idormy.sms.forwarder.core.BaseFragment
 import com.idormy.sms.forwarder.database.entity.Rule
 import com.idormy.sms.forwarder.database.viewmodel.BaseViewModelFactory
 import com.idormy.sms.forwarder.database.viewmodel.RuleViewModel
 import com.idormy.sms.forwarder.databinding.FragmentRulesBinding
-import com.idormy.sms.forwarder.utils.*
-import com.jeremyliao.liveeventbus.LiveEventBus
+import com.idormy.sms.forwarder.utils.KEY_RULE_CLONE
+import com.idormy.sms.forwarder.utils.KEY_RULE_ID
+import com.idormy.sms.forwarder.utils.KEY_RULE_TYPE
+import com.idormy.sms.forwarder.utils.XToastUtils
 import com.scwang.smartrefresh.layout.api.RefreshLayout
+import com.xuexiang.xaop.annotation.SingleClick
 import com.xuexiang.xpage.annotation.Page
 import com.xuexiang.xpage.core.PageOption
-import com.xuexiang.xui.utils.ResUtils
 import com.xuexiang.xui.widget.actionbar.TitleBar
 import com.xuexiang.xui.widget.dialog.materialdialog.DialogAction
 import com.xuexiang.xui.widget.dialog.materialdialog.MaterialDialog
+import com.xuexiang.xutil.resource.ResUtils.getStringArray
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-@Suppress("PropertyName")
 @Page(name = "转发规则")
 class RulesFragment : BaseFragment<FragmentRulesBinding?>(), RulePagingAdapter.OnItemClickListener {
 
-    val TAG: String = RulesFragment::class.java.simpleName
+    //private val TAG: String = RulesFragment::class.java.simpleName
+    private val that = this
     private var adapter = RulePagingAdapter(this)
+    private var titleBar: TitleBar? = null
     private val viewModel by viewModels<RuleViewModel> { BaseViewModelFactory(context) }
     private var currentType: String = "sms"
 
@@ -42,11 +47,25 @@ class RulesFragment : BaseFragment<FragmentRulesBinding?>(), RulePagingAdapter.O
         return FragmentRulesBinding.inflate(inflater, container, false)
     }
 
-    /**
-     * @return 返回为 null意为不需要导航栏
-     */
     override fun initTitle(): TitleBar? {
-        return null
+        titleBar = super.initTitle()!!.setImmersive(false)
+        titleBar!!.setLeftImageResource(R.drawable.ic_action_menu)
+        titleBar!!.setTitle(R.string.menu_rules)
+        titleBar!!.setLeftClickListener { getContainer()?.openMenu() }
+        titleBar!!.addAction(object : TitleBar.ImageAction(R.drawable.ic_add) {
+            @SingleClick
+            override fun performAction(view: View) {
+                PageOption.to(RulesEditFragment::class.java)
+                    .putString(KEY_RULE_TYPE, currentType)
+                    .setNewActivity(true)
+                    .open(that)
+            }
+        })
+        return titleBar
+    }
+
+    private fun getContainer(): MainActivity? {
+        return activity as MainActivity?
     }
 
     /**
@@ -59,7 +78,7 @@ class RulesFragment : BaseFragment<FragmentRulesBinding?>(), RulePagingAdapter.O
         binding!!.recyclerView.setRecycledViewPool(viewPool)
         viewPool.setMaxRecycledViews(0, 10)
 
-        binding!!.tabBar.setTabTitles(ResUtils.getStringArray(R.array.type_param_option))
+        binding!!.tabBar.setTabTitles(getStringArray(R.array.type_param_option))
         binding!!.tabBar.setOnTabClickListener { _, position ->
             //XToastUtils.toast("点击了$title--$position")
             currentType = when (position) {
@@ -68,7 +87,6 @@ class RulesFragment : BaseFragment<FragmentRulesBinding?>(), RulePagingAdapter.O
                 else -> "sms"
             }
             viewModel.setType(currentType)
-            LiveEventBus.get(EVENT_UPDATE_RULE_TYPE, String::class.java).post(currentType)
             adapter.refresh()
             binding!!.recyclerView.scrollToPosition(0)
         }
@@ -101,6 +119,7 @@ class RulesFragment : BaseFragment<FragmentRulesBinding?>(), RulePagingAdapter.O
                     .putBoolean(KEY_RULE_CLONE, true)
                     .open(this)
             }
+
             R.id.iv_edit -> {
                 PageOption.to(RulesEditFragment::class.java)
                     .setNewActivity(true)
@@ -108,6 +127,7 @@ class RulesFragment : BaseFragment<FragmentRulesBinding?>(), RulePagingAdapter.O
                     .putString(KEY_RULE_TYPE, item.type)
                     .open(this)
             }
+
             R.id.iv_delete -> {
                 MaterialDialog.Builder(requireContext())
                     .title(R.string.delete_rule_title)
@@ -120,10 +140,10 @@ class RulesFragment : BaseFragment<FragmentRulesBinding?>(), RulePagingAdapter.O
                     }
                     .show()
             }
+
             else -> {}
         }
     }
 
     override fun onItemRemove(view: View?, id: Int) {}
-
 }

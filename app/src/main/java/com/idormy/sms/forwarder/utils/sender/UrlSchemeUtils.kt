@@ -3,14 +3,14 @@ package com.idormy.sms.forwarder.utils.sender
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import com.idormy.sms.forwarder.database.entity.Rule
 import com.idormy.sms.forwarder.entity.MsgInfo
 import com.idormy.sms.forwarder.entity.setting.UrlSchemeSetting
+import com.idormy.sms.forwarder.utils.AppUtils
+import com.idormy.sms.forwarder.utils.Log
 import com.idormy.sms.forwarder.utils.SendUtils
 import com.idormy.sms.forwarder.utils.SettingUtils
 import com.xuexiang.xutil.XUtil
-import com.xuexiang.xutil.app.AppUtils
 import java.net.URLEncoder
 import java.text.SimpleDateFormat
 import java.util.*
@@ -65,7 +65,7 @@ class UrlSchemeUtils private constructor() {
                 SendUtils.senderLogic(2, msgInfo, rule, senderIndex, msgId)
             } catch (e: Exception) {
                 e.printStackTrace()
-                Log.e(TAG, e.message.toString())
+                Log.e(TAG, "sendMsg error:$e")
                 SendUtils.updateLogs(logId, 0, e.message.toString())
                 SendUtils.senderLogic(0, msgInfo, rule, senderIndex, msgId)
             }

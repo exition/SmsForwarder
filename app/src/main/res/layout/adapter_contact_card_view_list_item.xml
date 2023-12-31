@@ -26,9 +26,9 @@
             android:layout_height="40dp"
             android:layout_gravity="center"
             android:text=""
-            android:textSize="16sp"
+            android:textSize="@dimen/text_size_big"
             app:sShapeType="oval"
-            app:sSolidColor="?attr/colorControlNormal"
+            app:sSolidColor="#BEC2C7"
             tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
         <LinearLayout
@@ -42,7 +42,7 @@
                 android:id="@+id/tv_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
+                android:textSize="@dimen/text_size_medium"
                 android:textStyle="bold" />
 
             <TextView

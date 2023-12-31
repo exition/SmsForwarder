@@ -1,7 +1,6 @@
 package com.idormy.sms.forwarder.utils
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
@@ -18,14 +17,13 @@ import com.idormy.sms.forwarder.workers.SendLogicWorker
 import com.idormy.sms.forwarder.workers.SendWorker
 import com.idormy.sms.forwarder.workers.UpdateLogsWorker
 import com.jeremyliao.liveeventbus.LiveEventBus
-import com.xuexiang.xui.utils.ResUtils
 import com.xuexiang.xutil.XUtil
+import com.xuexiang.xutil.resource.ResUtils.getString
 import java.text.ParsePosition
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 
-@Suppress("DEPRECATION")
 object SendUtils {
     private const val TAG = "SendUtils"
 
@@ -45,7 +43,6 @@ object SendUtils {
     //重试发送消息
     fun retrySendMsg(logId: Long) {
         val item = Core.logs.getOne(logId)
-
         val msgInfo = MsgInfo(item.msg.type, item.msg.from, item.msg.content, item.msg.time, item.msg.simInfo, item.msg.simSlot, item.msg.subId)
         Log.d(TAG, "msgInfo = $msgInfo")
 
@@ -70,7 +67,7 @@ object SendUtils {
             val sender = rule.senderList[senderIndex]
             if (sender.status != 1) {
                 Log.d(TAG, "sender = $sender is disabled")
-                updateLogs(logId, 0, ResUtils.getString(R.string.sender_disabled))
+                updateLogs(logId, 0, getString(R.string.sender_disabled))
                 senderLogic(0, msgInfo, rule, senderIndex, msgId)
                 return
             }
@@ -98,7 +95,7 @@ object SendUtils {
                 val now = System.currentTimeMillis()
                 if (periodStart != null && periodEnd != null && now in periodStart..periodEnd) {
                     Log.d(TAG, "免打扰(禁用转发)时间段")
-                    updateLogs(logId, 0, ResUtils.getString(R.string.silent_time_period))
+                    updateLogs(logId, 0, getString(R.string.silent_time_period))
                     senderLogic(0, msgInfo, rule, senderIndex, msgId)
                     return
                 }
@@ -185,12 +182,13 @@ object SendUtils {
                 }
 
                 else -> {
-                    updateLogs(logId, 0, ResUtils.getString(R.string.unknown_sender))
+                    updateLogs(logId, 0, getString(R.string.unknown_sender))
                     senderLogic(0, msgInfo, rule, senderIndex, msgId)
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
+            Log.e(TAG, "sendMsgSender: ${e.message}")
             updateLogs(logId, 0, e.message.toString())
             senderLogic(0, msgInfo, rule, senderIndex, msgId)
         }
@@ -223,9 +221,9 @@ object SendUtils {
         //测试的没有记录ID，这里取巧了
         if (logId == null || logId == 0L) {
             if (status == 2) {
-                LiveEventBus.get(EVENT_TOAST_SUCCESS, String::class.java).post(ResUtils.getString(R.string.request_succeeded))
+                LiveEventBus.get(EVENT_TOAST_SUCCESS, String::class.java).post(getString(R.string.request_succeeded))
             } else {
-                LiveEventBus.get(EVENT_TOAST_ERROR, String::class.java).post(ResUtils.getString(R.string.request_failed) + response)
+                LiveEventBus.get(EVENT_TOAST_ERROR, String::class.java).post(getString(R.string.request_failed) + response)
             }
             return
         }

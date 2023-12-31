@@ -20,7 +20,7 @@
             android:orientation="vertical">
 
             <LinearLayout
-                style="@style/taskBarStyleWithSwitch"
+                style="@style/BarStyle.Switch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -51,32 +51,26 @@
 
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="5dp"
-                android:gravity="bottom"
-                android:orientation="horizontal">
+            <LinearLayout style="@style/BarTitleStyle.Task">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/task_conditions"
-                    android:textSize="20sp" />
+                    android:textSize="@dimen/text_size_large" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="15dp"
+                    android:layout_marginStart="10dp"
                     android:text="@string/task_conditions_tips"
-                    android:textSize="10sp"
+                    android:textSize="@dimen/text_size_mini"
                     tools:ignore="SmallSp" />
+
             </LinearLayout>
 
             <LinearLayout
-                style="@style/taskBarStyle"
+                style="@style/BarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
@@ -102,10 +96,10 @@
                     android:paddingBottom="@dimen/config_padding_5dp">
 
                     <ImageView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                        android:layout_width="@dimen/card_view_icon_size"
+                        android:layout_height="@dimen/card_view_icon_size"
                         android:src="@drawable/ic_add"
-                        app:tint="@color/gray_text_light"
+                        app:tint="#BEC2C7"
                         tools:ignore="ContentDescription,ImageContrastCheck" />
 
                     <LinearLayout
@@ -120,7 +114,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/add_condition"
-                            android:textSize="14sp"
+                            android:textSize="@dimen/text_size_medium"
                             android:textStyle="bold" />
 
                         <TextView
@@ -128,7 +122,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/add_condition_tips"
-                            android:textSize="12sp" />
+                            android:textSize="@dimen/text_size_mini" />
 
                     </LinearLayout>
 
@@ -136,32 +130,26 @@
 
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="5dp"
-                android:gravity="bottom"
-                android:orientation="horizontal">
+            <LinearLayout style="@style/BarTitleStyle.Task">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/task_actions"
-                    android:textSize="20sp" />
+                    android:textSize="@dimen/text_size_large" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:text="@string/task_actions_tips"
-                    android:textSize="10sp"
+                    android:textSize="@dimen/text_size_mini"
                     tools:ignore="SmallSp" />
+
             </LinearLayout>
 
             <LinearLayout
-                style="@style/taskBarStyle"
+                style="@style/BarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
@@ -187,10 +175,10 @@
                     android:paddingBottom="@dimen/config_padding_5dp">
 
                     <ImageView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                        android:layout_width="@dimen/card_view_icon_size"
+                        android:layout_height="@dimen/card_view_icon_size"
                         android:src="@drawable/ic_add"
-                        app:tint="@color/gray_text_light"
+                        app:tint="#BEC2C7"
                         tools:ignore="ContentDescription,ImageContrastCheck" />
 
                     <LinearLayout
@@ -205,7 +193,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/add_action"
-                            android:textSize="14sp"
+                            android:textSize="@dimen/text_size_medium"
                             android:textStyle="bold" />
 
                         <TextView
@@ -213,7 +201,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/add_action_tips"
-                            android:textSize="12sp" />
+                            android:textSize="@dimen/text_size_mini" />
 
                     </LinearLayout>
 
@@ -234,34 +222,23 @@
 
         <com.xuexiang.xui.widget.textview.supertextview.SuperButton
             android:id="@+id/btn_del"
-            style="@style/SuperButton.Gray.Icon"
-            android:drawableStart="@drawable/icon_delete"
-            android:paddingStart="15dp"
+            style="@style/SuperButton.Gray.Icon.Spacing"
+            android:drawableStart="@drawable/ic_delete"
             android:text="@string/del"
-            android:textColor="#FFFFFF"
-            android:textSize="11sp"
             tools:ignore="RtlSymmetry,TextContrastCheck,TouchTargetSizeCheck" />
 
         <com.xuexiang.xui.widget.textview.supertextview.SuperButton
             android:id="@+id/btn_save"
-            style="@style/SuperButton.Blue.Icon"
-            android:layout_marginStart="10dp"
-            android:drawableStart="@drawable/icon_save"
-            android:paddingStart="15dp"
+            style="@style/SuperButton.Blue.Icon.Spacing"
+            android:drawableStart="@drawable/ic_save"
             android:text="@string/save"
-            android:textColor="#FFFFFF"
-            android:textSize="11sp"
             tools:ignore="RtlSymmetry,TextContrastCheck,TouchTargetSizeCheck" />
 
         <com.xuexiang.xui.widget.textview.supertextview.SuperButton
             android:id="@+id/btn_test"
-            style="@style/SuperButton.Green.Icon"
-            android:layout_marginStart="10dp"
-            android:drawableStart="@drawable/icon_test"
-            android:paddingStart="15dp"
+            style="@style/SuperButton.Green.Icon.Spacing"
+            android:drawableStart="@drawable/ic_test"
             android:text="@string/test"
-            android:textColor="#FFFFFF"
-            android:textSize="11sp"
             android:visibility="gone"
             tools:ignore="RtlSymmetry,TextContrastCheck,TouchTargetSizeCheck" />
 

@@ -2,7 +2,6 @@ package com.idormy.sms.forwarder.fragment
 
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +15,14 @@ import com.idormy.sms.forwarder.core.BaseFragment
 import com.idormy.sms.forwarder.databinding.FragmentClientBinding
 import com.idormy.sms.forwarder.server.model.BaseResponse
 import com.idormy.sms.forwarder.server.model.ConfigData
-import com.idormy.sms.forwarder.utils.*
+import com.idormy.sms.forwarder.utils.Base64
+import com.idormy.sms.forwarder.utils.CommonUtils
+import com.idormy.sms.forwarder.utils.HttpServerUtils
+import com.idormy.sms.forwarder.utils.Log
+import com.idormy.sms.forwarder.utils.RSACrypt
+import com.idormy.sms.forwarder.utils.SM4Crypt
+import com.idormy.sms.forwarder.utils.SettingUtils
+import com.idormy.sms.forwarder.utils.XToastUtils
 import com.xuexiang.xaop.annotation.SingleClick
 import com.xuexiang.xhttp2.XHttp
 import com.xuexiang.xhttp2.cache.model.CacheMode
@@ -25,28 +31,94 @@ import com.xuexiang.xhttp2.exception.ApiException
 import com.xuexiang.xpage.annotation.Page
 import com.xuexiang.xpage.base.XPageFragment
 import com.xuexiang.xpage.core.PageOption
+import com.xuexiang.xpage.enums.CoreAnim
 import com.xuexiang.xpage.model.PageInfo
 import com.xuexiang.xrouter.utils.TextUtils
 import com.xuexiang.xui.adapter.recyclerview.RecyclerViewHolder
 import com.xuexiang.xui.utils.CountDownButtonHelper
 import com.xuexiang.xui.utils.DensityUtils
-import com.xuexiang.xui.utils.ResUtils
 import com.xuexiang.xui.utils.WidgetUtils
 import com.xuexiang.xui.widget.actionbar.TitleBar
 import com.xuexiang.xui.widget.dialog.materialdialog.DialogAction
 import com.xuexiang.xui.widget.dialog.materialdialog.MaterialDialog
 import com.xuexiang.xutil.XUtil
 import com.xuexiang.xutil.data.ConvertTools
+import com.xuexiang.xutil.resource.ResUtils.getColors
 
-@Suppress("PropertyName")
+@Suppress("PrivatePropertyName", "DEPRECATION")
 @Page(name = "主动控制·客户端")
 class ClientFragment : BaseFragment<FragmentClientBinding?>(), View.OnClickListener, RecyclerViewHolder.OnItemClickListener<PageInfo> {
 
-    val TAG: String = ClientFragment::class.java.simpleName
+    private val TAG: String = ClientFragment::class.java.simpleName
     private var appContext: App? = null
     private var serverConfig: ConfigData? = null
     private var serverHistory: MutableMap<String, String> = mutableMapOf()
     private var mCountDownHelper: CountDownButtonHelper? = null
+    private var CLIENT_FRAGMENT_LIST = listOf(
+        PageInfo(
+            getString(R.string.api_clone),
+            "com.idormy.sms.forwarder.fragment.client.CloneFragment",
+            "{\"\":\"\"}",
+            CoreAnim.slide,
+            R.drawable.icon_api_clone
+        ),
+        PageInfo(
+            getString(R.string.api_sms_query),
+            "com.idormy.sms.forwarder.fragment.client.SmsQueryFragment",
+            "{\"\":\"\"}",
+            CoreAnim.slide,
+            R.drawable.icon_api_sms_query
+        ),
+        PageInfo(
+            getString(R.string.api_sms_send),
+            "com.idormy.sms.forwarder.fragment.client.SmsSendFragment",
+            "{\"\":\"\"}",
+            CoreAnim.slide,
+            R.drawable.icon_api_sms_send
+        ),
+        PageInfo(
+            getString(R.string.api_call_query),
+            "com.idormy.sms.forwarder.fragment.client.CallQueryFragment",
+            "{\"\":\"\"}",
+            CoreAnim.slide,
+            R.drawable.icon_api_call_query
+        ),
+        PageInfo(
+            getString(R.string.api_contact_query),
+            "com.idormy.sms.forwarder.fragment.client.ContactQueryFragment",
+            "{\"\":\"\"}",
+            CoreAnim.slide,
+            R.drawable.icon_api_contact_query
+        ),
+        PageInfo(
+            getString(R.string.api_contact_add),
+            "com.idormy.sms.forwarder.fragment.client.ContactAddFragment",
+            "{\"\":\"\"}",
+            CoreAnim.slide,
+            R.drawable.icon_api_contact_add
+        ),
+        PageInfo(
+            getString(R.string.api_wol),
+            "com.idormy.sms.forwarder.fragment.client.WolSendFragment",
+            "{\"\":\"\"}",
+            CoreAnim.slide,
+            R.drawable.icon_api_wol
+        ),
+        PageInfo(
+            getString(R.string.api_location),
+            "com.idormy.sms.forwarder.fragment.client.LocationFragment",
+            "{\"\":\"\"}",
+            CoreAnim.slide,
+            R.drawable.icon_api_location
+        ),
+        PageInfo(
+            getString(R.string.api_battery_query),
+            "com.idormy.sms.forwarder.fragment.client.BatteryQueryFragment",
+            "{\"\":\"\"}",
+            CoreAnim.slide,
+            R.drawable.icon_api_battery_query
+        ),
+    )
 
     override fun initViews() {
         appContext = requireActivity().application as App
@@ -92,6 +164,7 @@ class ClientFragment : BaseFragment<FragmentClientBinding?>(), View.OnClickListe
                         XUtil.exitApp()
                     } catch (e: InterruptedException) {
                         e.printStackTrace()
+                        Log.e(TAG, "InterruptedException: ${e.message}")
                     }
                 }
             })
@@ -125,14 +198,17 @@ class ClientFragment : BaseFragment<FragmentClientBinding?>(), View.OnClickListe
                 safetyMeasuresId = R.id.rb_safety_measures_sign
                 binding!!.tvSignKey.text = getString(R.string.sign_key)
             }
+
             2 -> {
                 safetyMeasuresId = R.id.rb_safety_measures_rsa
                 binding!!.tvSignKey.text = getString(R.string.public_key)
             }
+
             3 -> {
                 safetyMeasuresId = R.id.rb_safety_measures_sm4
                 binding!!.tvSignKey.text = getString(R.string.sm4_key)
             }
+
             else -> {
                 binding!!.layoutSignKey.visibility = View.GONE
             }
@@ -146,14 +222,17 @@ class ClientFragment : BaseFragment<FragmentClientBinding?>(), View.OnClickListe
                     safetyMeasures = 1
                     binding!!.tvSignKey.text = getString(R.string.sign_key)
                 }
+
                 R.id.rb_safety_measures_rsa -> {
                     safetyMeasures = 2
                     binding!!.tvSignKey.text = getString(R.string.public_key)
                 }
+
                 R.id.rb_safety_measures_sm4 -> {
                     safetyMeasures = 3
                     binding!!.tvSignKey.text = getString(R.string.sm4_key)
                 }
+
                 else -> {
                     binding!!.layoutSignKey.visibility = View.GONE
                 }
@@ -185,6 +264,7 @@ class ClientFragment : BaseFragment<FragmentClientBinding?>(), View.OnClickListe
                 }
                 CommonUtils.previewPicture(this, getString(R.string.url_wechat_miniprogram), null)
             }
+
             R.id.btn_server_history -> {
                 if (serverHistory.isEmpty()) {
                     XToastUtils.warning(getString(R.string.no_server_history))
@@ -213,14 +293,17 @@ class ClientFragment : BaseFragment<FragmentClientBinding?>(), View.OnClickListe
                                     safetyMeasuresId = R.id.rb_safety_measures_sign
                                     binding!!.tvSignKey.text = getString(R.string.sign_key)
                                 }
+
                                 "2" -> {
                                     safetyMeasuresId = R.id.rb_safety_measures_rsa
                                     binding!!.tvSignKey.text = getString(R.string.public_key)
                                 }
+
                                 "3" -> {
                                     safetyMeasuresId = R.id.rb_safety_measures_sm4
                                     binding!!.tvSignKey.text = getString(R.string.sm4_key)
                                 }
+
                                 else -> {
                                     binding!!.tvSignKey.visibility = View.GONE
                                     binding!!.etSignKey.visibility = View.GONE
@@ -232,11 +315,12 @@ class ClientFragment : BaseFragment<FragmentClientBinding?>(), View.OnClickListe
                         }
                     }
                     true // allow selection
-                }.positiveText(R.string.select).negativeText(R.string.cancel).neutralText(R.string.clear_history).neutralColor(ResUtils.getColors(R.color.red)).onNeutral { _: MaterialDialog?, _: DialogAction? ->
+                }.positiveText(R.string.select).negativeText(R.string.cancel).neutralText(R.string.clear_history).neutralColor(getColors(R.color.red)).onNeutral { _: MaterialDialog?, _: DialogAction? ->
                     serverHistory.clear()
                     HttpServerUtils.serverHistory = ""
                 }.show()
             }
+
             R.id.btn_server_test -> {
                 if (!CommonUtils.checkUrl(HttpServerUtils.serverAddress)) {
                     XToastUtils.error(getString(R.string.invalid_service_address))
@@ -244,22 +328,23 @@ class ClientFragment : BaseFragment<FragmentClientBinding?>(), View.OnClickListe
                 }
                 queryConfig(true)
             }
+
             else -> {}
         }
     }
 
     override fun onItemClick(itemView: View, item: PageInfo, position: Int) {
         try {
-            if (item.name != ResUtils.getString(R.string.api_clone) && !CommonUtils.checkUrl(HttpServerUtils.serverAddress)) {
+            if (item.name != getString(R.string.api_clone) && !CommonUtils.checkUrl(HttpServerUtils.serverAddress)) {
                 XToastUtils.error(getString(R.string.invalid_service_address))
                 serverConfig = null
                 return
             }
-            if (serverConfig == null && item.name != ResUtils.getString(R.string.api_clone)) {
+            if (serverConfig == null && item.name != getString(R.string.api_clone)) {
                 XToastUtils.error(getString(R.string.click_test_button_first))
                 return
             }
-            if (serverConfig != null && ((item.name == ResUtils.getString(R.string.api_sms_send) && !serverConfig!!.enableApiSmsSend) || (item.name == ResUtils.getString(R.string.api_sms_query) && !serverConfig!!.enableApiSmsQuery) || (item.name == ResUtils.getString(R.string.api_call_query) && !serverConfig!!.enableApiCallQuery) || (item.name == ResUtils.getString(R.string.api_contact_query) && !serverConfig!!.enableApiContactQuery) || (item.name == ResUtils.getString(R.string.api_contact_add) && !serverConfig!!.enableApiContactAdd) || (item.name == ResUtils.getString(R.string.api_battery_query) && !serverConfig!!.enableApiBatteryQuery) || (item.name == ResUtils.getString(R.string.api_wol) && !serverConfig!!.enableApiWol) || (item.name == ResUtils.getString(R.string.api_location) && !serverConfig!!.enableApiLocation))) {
+            if (serverConfig != null && ((item.name == getString(R.string.api_sms_send) && !serverConfig!!.enableApiSmsSend) || (item.name == getString(R.string.api_sms_query) && !serverConfig!!.enableApiSmsQuery) || (item.name == getString(R.string.api_call_query) && !serverConfig!!.enableApiCallQuery) || (item.name == getString(R.string.api_contact_query) && !serverConfig!!.enableApiContactQuery) || (item.name == getString(R.string.api_contact_add) && !serverConfig!!.enableApiContactAdd) || (item.name == getString(R.string.api_battery_query) && !serverConfig!!.enableApiBatteryQuery) || (item.name == getString(R.string.api_wol) && !serverConfig!!.enableApiWol) || (item.name == getString(R.string.api_location) && !serverConfig!!.enableApiLocation))) {
                 XToastUtils.error(getString(R.string.disabled_on_the_server))
                 return
             }
@@ -267,6 +352,7 @@ class ClientFragment : BaseFragment<FragmentClientBinding?>(), View.OnClickListe
             PageOption.to(Class.forName(item.classPath) as Class<XPageFragment>).setNewActivity(true).open(this)
         } catch (e: Exception) {
             e.printStackTrace()
+            Log.e(TAG, "onItemClick error: ${e.message}")
             XToastUtils.error(e.message.toString())
         }
     }
@@ -305,12 +391,14 @@ class ClientFragment : BaseFragment<FragmentClientBinding?>(), View.OnClickListe
                     requestMsg = RSACrypt.encryptByPublicKey(requestMsg, publicKey)
                     Log.i(TAG, "requestMsg: $requestMsg")
                 } catch (e: Exception) {
-                    if (needToast) XToastUtils.error(ResUtils.getString(R.string.request_failed) + e.message)
+                    if (needToast) XToastUtils.error(getString(R.string.request_failed) + e.message)
                     e.printStackTrace()
+                    Log.e(TAG, "RSACrypt error: ${e.message}")
                     return
                 }
                 postRequest.upString(requestMsg)
             }
+
             3 -> {
                 try {
                     val sm4Key = ConvertTools.hexStringToByteArray(HttpServerUtils.clientSignKey)
@@ -319,12 +407,14 @@ class ClientFragment : BaseFragment<FragmentClientBinding?>(), View.OnClickListe
                     requestMsg = ConvertTools.bytes2HexString(encryptCBC)
                     Log.i(TAG, "requestMsg: $requestMsg")
                 } catch (e: Exception) {
-                    if (needToast) XToastUtils.error(ResUtils.getString(R.string.request_failed) + e.message)
+                    if (needToast) XToastUtils.error(getString(R.string.request_failed) + e.message)
                     e.printStackTrace()
+                    Log.e(TAG, "SM4Crypt error: ${e.message}")
                     return
                 }
                 postRequest.upString(requestMsg)
             }
+
             else -> {
                 postRequest.upJson(requestMsg)
             }
@@ -354,7 +444,7 @@ class ClientFragment : BaseFragment<FragmentClientBinding?>(), View.OnClickListe
                     val resp: BaseResponse<ConfigData> = Gson().fromJson(json, object : TypeToken<BaseResponse<ConfigData>>() {}.type)
                     if (resp.code == 200) {
                         serverConfig = resp.data!!
-                        if (needToast) XToastUtils.success(ResUtils.getString(R.string.request_succeeded))
+                        if (needToast) XToastUtils.success(getString(R.string.request_succeeded))
                         //删除3.0.8之前保存的记录
                         serverHistory.remove(HttpServerUtils.serverAddress)
                         //添加到历史记录
@@ -367,13 +457,14 @@ class ClientFragment : BaseFragment<FragmentClientBinding?>(), View.OnClickListe
                         HttpServerUtils.serverHistory = Gson().toJson(serverHistory)
                         HttpServerUtils.serverConfig = Gson().toJson(serverConfig)
                     } else {
-                        if (needToast) XToastUtils.error(ResUtils.getString(R.string.request_failed) + resp.msg)
+                        if (needToast) XToastUtils.error(getString(R.string.request_failed) + resp.msg)
                     }
                     if (needToast) mCountDownHelper?.finish()
                 } catch (e: Exception) {
                     e.printStackTrace()
+                    Log.e(TAG, "onSuccess error: ${e.message}")
                     if (needToast) {
-                        XToastUtils.error(ResUtils.getString(R.string.request_failed) + response)
+                        XToastUtils.error(getString(R.string.request_failed) + response)
                         mCountDownHelper?.finish()
                     }
                 }

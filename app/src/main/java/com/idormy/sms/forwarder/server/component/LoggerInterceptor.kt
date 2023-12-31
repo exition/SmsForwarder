@@ -1,9 +1,9 @@
 package com.idormy.sms.forwarder.server.component
 
-import android.util.Log
+import com.idormy.sms.forwarder.utils.Log
 import com.idormy.sms.forwarder.R
 import com.idormy.sms.forwarder.utils.HttpServerUtils
-import com.xuexiang.xui.utils.ResUtils.getString
+import com.xuexiang.xutil.resource.ResUtils.getString
 import com.yanzhenjie.andserver.annotation.Interceptor
 import com.yanzhenjie.andserver.error.HttpException
 import com.yanzhenjie.andserver.framework.HandlerInterceptor

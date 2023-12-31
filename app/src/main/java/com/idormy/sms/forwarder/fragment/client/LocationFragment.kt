@@ -1,6 +1,5 @@
 package com.idormy.sms.forwarder.fragment.client
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +10,13 @@ import com.idormy.sms.forwarder.core.BaseFragment
 import com.idormy.sms.forwarder.databinding.FragmentClientLocationBinding
 import com.idormy.sms.forwarder.entity.LocationInfo
 import com.idormy.sms.forwarder.server.model.BaseResponse
-import com.idormy.sms.forwarder.utils.*
+import com.idormy.sms.forwarder.utils.Base64
+import com.idormy.sms.forwarder.utils.HttpServerUtils
+import com.idormy.sms.forwarder.utils.Log
+import com.idormy.sms.forwarder.utils.RSACrypt
+import com.idormy.sms.forwarder.utils.SM4Crypt
+import com.idormy.sms.forwarder.utils.SettingUtils
+import com.idormy.sms.forwarder.utils.XToastUtils
 import com.xuexiang.xaop.annotation.SingleClick
 import com.xuexiang.xhttp2.XHttp
 import com.xuexiang.xhttp2.cache.model.CacheMode
@@ -20,16 +25,15 @@ import com.xuexiang.xhttp2.exception.ApiException
 import com.xuexiang.xpage.annotation.Page
 import com.xuexiang.xrouter.utils.TextUtils
 import com.xuexiang.xui.utils.CountDownButtonHelper
-import com.xuexiang.xui.utils.ResUtils
 import com.xuexiang.xui.widget.actionbar.TitleBar
 import com.xuexiang.xui.widget.grouplist.XUIGroupListView
 import com.xuexiang.xutil.data.ConvertTools
 
-@Suppress("PropertyName")
+@Suppress("PrivatePropertyName")
 @Page(name = "远程找手机")
 class LocationFragment : BaseFragment<FragmentClientLocationBinding?>(), View.OnClickListener {
 
-    val TAG: String = LocationFragment::class.java.simpleName
+    private val TAG: String = LocationFragment::class.java.simpleName
     private var mCountDownHelper: CountDownButtonHelper? = null
 
     override fun viewBindingInflate(
@@ -72,6 +76,7 @@ class LocationFragment : BaseFragment<FragmentClientLocationBinding?>(), View.On
             R.id.btn_refresh -> {
                 getLocation()
             }
+
             else -> {}
         }
     }
@@ -104,12 +109,14 @@ class LocationFragment : BaseFragment<FragmentClientLocationBinding?>(), View.On
                     requestMsg = RSACrypt.encryptByPublicKey(requestMsg, publicKey)
                     Log.i(TAG, "requestMsg: $requestMsg")
                 } catch (e: Exception) {
-                    XToastUtils.error(ResUtils.getString(R.string.request_failed) + e.message)
+                    XToastUtils.error(getString(R.string.request_failed) + e.message)
                     e.printStackTrace()
+                    Log.e(TAG, e.toString())
                     return
                 }
                 postRequest.upString(requestMsg)
             }
+
             3 -> {
                 try {
                     val sm4Key = ConvertTools.hexStringToByteArray(HttpServerUtils.clientSignKey)
@@ -118,12 +125,14 @@ class LocationFragment : BaseFragment<FragmentClientLocationBinding?>(), View.On
                     requestMsg = ConvertTools.bytes2HexString(encryptCBC)
                     Log.i(TAG, "requestMsg: $requestMsg")
                 } catch (e: Exception) {
-                    XToastUtils.error(ResUtils.getString(R.string.request_failed) + e.message)
+                    XToastUtils.error(getString(R.string.request_failed) + e.message)
                     e.printStackTrace()
+                    Log.e(TAG, e.toString())
                     return
                 }
                 postRequest.upString(requestMsg)
             }
+
             else -> {
                 postRequest.upJson(requestMsg)
             }
@@ -152,7 +161,7 @@ class LocationFragment : BaseFragment<FragmentClientLocationBinding?>(), View.On
                     }
                     val resp: BaseResponse<LocationInfo> = Gson().fromJson(json, object : TypeToken<BaseResponse<LocationInfo>>() {}.type)
                     if (resp.code == 200) {
-                        XToastUtils.success(ResUtils.getString(R.string.request_succeeded))
+                        XToastUtils.success(getString(R.string.request_succeeded))
                         mCountDownHelper?.finish()
 
                         val locationInfo = resp.data ?: return
@@ -160,18 +169,19 @@ class LocationFragment : BaseFragment<FragmentClientLocationBinding?>(), View.On
                         val groupListView = binding!!.infoList
                         groupListView.removeAllViews()
                         val section = XUIGroupListView.newSection(context)
-                        section.addItemView(groupListView.createItemView(String.format(ResUtils.getString(R.string.location_longitude), locationInfo.longitude))) {}
-                        section.addItemView(groupListView.createItemView(String.format(ResUtils.getString(R.string.location_latitude), locationInfo.latitude))) {}
-                        if (locationInfo.address != "") section.addItemView(groupListView.createItemView(String.format(ResUtils.getString(R.string.location_address), locationInfo.address))) {}
-                        if (locationInfo.time != "") section.addItemView(groupListView.createItemView(String.format(ResUtils.getString(R.string.location_time), locationInfo.time))) {}
-                        if (locationInfo.provider != "") section.addItemView(groupListView.createItemView(String.format(ResUtils.getString(R.string.location_provider), locationInfo.provider))) {}
+                        section.addItemView(groupListView.createItemView(String.format(getString(R.string.location_longitude), locationInfo.longitude))) {}
+                        section.addItemView(groupListView.createItemView(String.format(getString(R.string.location_latitude), locationInfo.latitude))) {}
+                        if (locationInfo.address != "") section.addItemView(groupListView.createItemView(String.format(getString(R.string.location_address), locationInfo.address))) {}
+                        if (locationInfo.time != "") section.addItemView(groupListView.createItemView(String.format(getString(R.string.location_time), locationInfo.time))) {}
+                        if (locationInfo.provider != "") section.addItemView(groupListView.createItemView(String.format(getString(R.string.location_provider), locationInfo.provider))) {}
                         section.addTo(groupListView)
                     } else {
-                        XToastUtils.error(ResUtils.getString(R.string.request_failed) + resp.msg)
+                        XToastUtils.error(getString(R.string.request_failed) + resp.msg)
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    XToastUtils.error(ResUtils.getString(R.string.request_failed) + response)
+                    Log.e(TAG, e.toString())
+                    XToastUtils.error(getString(R.string.request_failed) + response)
                 }
                 mCountDownHelper?.finish()
             }

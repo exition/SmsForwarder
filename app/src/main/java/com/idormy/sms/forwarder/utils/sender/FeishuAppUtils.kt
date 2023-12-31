@@ -1,7 +1,7 @@
 package com.idormy.sms.forwarder.utils.sender
 
 import android.text.TextUtils
-import android.util.Log
+import com.idormy.sms.forwarder.utils.Log
 import com.google.gson.Gson
 import com.idormy.sms.forwarder.R
 import com.idormy.sms.forwarder.database.entity.Rule
@@ -15,7 +15,7 @@ import com.xuexiang.xhttp2.XHttp
 import com.xuexiang.xhttp2.cache.model.CacheMode
 import com.xuexiang.xhttp2.callback.SimpleCallBack
 import com.xuexiang.xhttp2.exception.ApiException
-import com.xuexiang.xui.utils.ResUtils.getString
+import com.xuexiang.xutil.resource.ResUtils.getString
 
 //飞书企业应用
 class FeishuAppUtils private constructor() {

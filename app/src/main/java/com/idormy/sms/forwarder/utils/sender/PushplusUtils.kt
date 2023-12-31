@@ -1,7 +1,7 @@
 package com.idormy.sms.forwarder.utils.sender
 
 import android.text.TextUtils
-import android.util.Log
+import com.idormy.sms.forwarder.utils.Log
 import com.google.gson.Gson
 import com.idormy.sms.forwarder.R
 import com.idormy.sms.forwarder.database.entity.Rule
@@ -14,7 +14,7 @@ import com.xuexiang.xhttp2.XHttp
 import com.xuexiang.xhttp2.cache.model.CacheMode
 import com.xuexiang.xhttp2.callback.SimpleCallBack
 import com.xuexiang.xhttp2.exception.ApiException
-import com.xuexiang.xui.utils.ResUtils
+import com.xuexiang.xutil.resource.ResUtils.getString
 
 class PushplusUtils private constructor() {
     companion object {
@@ -51,7 +51,7 @@ class PushplusUtils private constructor() {
             if (!TextUtils.isEmpty(setting.template)) msgMap["template"] = setting.template.toString()
             if (!TextUtils.isEmpty(setting.topic)) msgMap["topic"] = setting.topic.toString()
 
-            if (setting.website == ResUtils.getString(R.string.pushplus_plus)) {
+            if (setting.website == getString(R.string.pushplus_plus)) {
                 if (!TextUtils.isEmpty(setting.channel)) msgMap["channel"] = setting.channel.toString()
                 if (!TextUtils.isEmpty(setting.webhook)) msgMap["webhook"] = setting.webhook.toString()
                 if (!TextUtils.isEmpty(setting.callbackUrl)) msgMap["callbackUrl"] = setting.callbackUrl.toString()

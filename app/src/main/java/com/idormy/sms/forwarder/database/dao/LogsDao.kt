@@ -1,7 +1,13 @@
 package com.idormy.sms.forwarder.database.dao
 
 import androidx.paging.PagingSource
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Transaction
+import androidx.room.Update
 import com.idormy.sms.forwarder.database.entity.Logs
 import com.idormy.sms.forwarder.database.entity.LogsAndRuleAndSender
 import io.reactivex.Completable
@@ -25,11 +31,18 @@ interface LogsDao {
     @Query("DELETE FROM Logs")
     fun deleteAll()
 
-    @Query("DELETE FROM Logs where time<:time")
-    fun deleteTimeAgo(time: Long)
-
     @Update
     fun update(logs: Logs): Completable
+
+    @Query(
+        "UPDATE Logs SET forward_status=:status" +
+                ",forward_response=CASE WHEN (trim(forward_response) = '' or trim(forward_response) = 'ok')" +
+                " THEN :response" +
+                " ELSE forward_response || '\n--------------------\n' || :response" +
+                " END" +
+                " where id=:id"
+    )
+    fun updateStatus(id: Long, status: Int, response: String): Int
 
     @Query("SELECT * FROM Logs where id=:id")
     fun get(id: Long): Single<Logs>
@@ -45,13 +58,4 @@ interface LogsDao {
     @Query("SELECT * FROM Logs WHERE type = :type ORDER BY id DESC")
     fun pagingSource(type: String): PagingSource<Int, LogsAndRuleAndSender>
 
-    @Query(
-        "UPDATE Logs SET forward_status=:status" +
-                ",forward_response=CASE WHEN (trim(forward_response) = '' or trim(forward_response) = 'ok')" +
-                " THEN :response" +
-                " ELSE forward_response || '\n--------------------\n' || :response" +
-                " END" +
-                " where id=:id"
-    )
-    fun updateStatus(id: Long, status: Int, response: String): Int
 }

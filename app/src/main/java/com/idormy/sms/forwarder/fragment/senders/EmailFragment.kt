@@ -1,7 +1,6 @@
 package com.idormy.sms.forwarder.fragment.senders
 
 import android.text.TextUtils
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +9,7 @@ import androidx.fragment.app.viewModels
 import com.google.gson.Gson
 import com.idormy.sms.forwarder.R
 import com.idormy.sms.forwarder.core.BaseFragment
-import com.idormy.sms.forwarder.database.AppDatabase
+import com.idormy.sms.forwarder.core.Core
 import com.idormy.sms.forwarder.database.entity.Sender
 import com.idormy.sms.forwarder.database.viewmodel.BaseViewModelFactory
 import com.idormy.sms.forwarder.database.viewmodel.SenderViewModel
@@ -23,6 +22,7 @@ import com.idormy.sms.forwarder.utils.KEY_SENDER_CLONE
 import com.idormy.sms.forwarder.utils.KEY_SENDER_ID
 import com.idormy.sms.forwarder.utils.KEY_SENDER_TEST
 import com.idormy.sms.forwarder.utils.KEY_SENDER_TYPE
+import com.idormy.sms.forwarder.utils.Log
 import com.idormy.sms.forwarder.utils.SettingUtils
 import com.idormy.sms.forwarder.utils.XToastUtils
 import com.idormy.sms.forwarder.utils.sender.EmailUtils
@@ -32,11 +32,11 @@ import com.xuexiang.xpage.annotation.Page
 import com.xuexiang.xrouter.annotation.AutoWired
 import com.xuexiang.xrouter.launcher.XRouter
 import com.xuexiang.xui.utils.CountDownButtonHelper
-import com.xuexiang.xui.utils.ResUtils
 import com.xuexiang.xui.widget.actionbar.TitleBar
 import com.xuexiang.xui.widget.dialog.materialdialog.DialogAction
 import com.xuexiang.xui.widget.dialog.materialdialog.MaterialDialog
 import com.xuexiang.xui.widget.spinner.materialspinner.MaterialSpinner
+import com.xuexiang.xutil.resource.ResUtils.getStringArray
 import io.reactivex.SingleObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -48,7 +48,7 @@ import java.util.Date
 class EmailFragment : BaseFragment<FragmentSendersEmailBinding?>(), View.OnClickListener {
 
     private val TAG: String = EmailFragment::class.java.simpleName
-    var titleBar: TitleBar? = null
+    private var titleBar: TitleBar? = null
     private val viewModel by viewModels<SenderViewModel> { BaseViewModelFactory(context) }
     private var mCountDownHelper: CountDownButtonHelper? = null
     private var mailType: String = getString(R.string.other_mail_type) //邮箱类型
@@ -97,7 +97,7 @@ class EmailFragment : BaseFragment<FragmentSendersEmailBinding?>(), View.OnClick
             }
         })
 
-        val mailTypeArray = ResUtils.getStringArray(R.array.MailType)
+        val mailTypeArray = getStringArray(R.array.MailType)
         Log.d(TAG, mailTypeArray.toString())
         binding!!.spMailType.setOnItemSelectedListener { _: MaterialSpinner?, position: Int, _: Long, item: Any ->
             mailType = item.toString()
@@ -121,49 +121,45 @@ class EmailFragment : BaseFragment<FragmentSendersEmailBinding?>(), View.OnClick
 
         //编辑
         binding!!.btnDel.setText(R.string.del)
-        AppDatabase.getInstance(requireContext())
-            .senderDao()
-            .get(senderId)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : SingleObserver<Sender> {
-                override fun onSubscribe(d: Disposable) {}
+        Core.sender.get(senderId).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(object : SingleObserver<Sender> {
+            override fun onSubscribe(d: Disposable) {}
 
-                override fun onError(e: Throwable) {
-                    e.printStackTrace()
+            override fun onError(e: Throwable) {
+                e.printStackTrace()
+                Log.e(TAG, "onError:$e")
+            }
+
+            override fun onSuccess(sender: Sender) {
+                if (isClone) {
+                    titleBar?.setSubTitle(getString(R.string.clone_sender) + ": " + sender.name)
+                    binding!!.btnDel.setText(R.string.discard)
+                } else {
+                    titleBar?.setSubTitle(getString(R.string.edit_sender) + ": " + sender.name)
                 }
-
-                override fun onSuccess(sender: Sender) {
-                    if (isClone) {
-                        titleBar?.setSubTitle(getString(R.string.clone_sender) + ": " + sender.name)
-                        binding!!.btnDel.setText(R.string.discard)
-                    } else {
-                        titleBar?.setSubTitle(getString(R.string.edit_sender) + ": " + sender.name)
-                    }
-                    binding!!.etName.setText(sender.name)
-                    binding!!.sbEnable.isChecked = sender.status == 1
-                    val settingVo = Gson().fromJson(sender.jsonSetting, EmailSetting::class.java)
-                    Log.d(TAG, settingVo.toString())
-                    if (settingVo != null) {
-                        if (!TextUtils.isEmpty(settingVo.mailType)) {
-                            mailType = settingVo.mailType.toString()
-                            binding!!.spMailType.setSelectedItem(mailType)
-                            if (mailType != getString(R.string.other_mail_type)) {
-                                binding!!.layoutServiceSetting.visibility = View.GONE
-                            }
+                binding!!.etName.setText(sender.name)
+                binding!!.sbEnable.isChecked = sender.status == 1
+                val settingVo = Gson().fromJson(sender.jsonSetting, EmailSetting::class.java)
+                Log.d(TAG, settingVo.toString())
+                if (settingVo != null) {
+                    if (!TextUtils.isEmpty(settingVo.mailType)) {
+                        mailType = settingVo.mailType.toString()
+                        binding!!.spMailType.setSelectedItem(mailType)
+                        if (mailType != getString(R.string.other_mail_type)) {
+                            binding!!.layoutServiceSetting.visibility = View.GONE
                         }
-                        binding!!.etFromEmail.setText(settingVo.fromEmail)
-                        binding!!.etPwd.setText(settingVo.pwd)
-                        binding!!.etNickname.setText(settingVo.nickname)
-                        binding!!.etHost.setText(settingVo.host)
-                        binding!!.etPort.setText(settingVo.port)
-                        binding!!.sbSsl.isChecked = settingVo.ssl == true
-                        binding!!.sbStartTls.isChecked = settingVo.startTls == true
-                        binding!!.etToEmail.setText(settingVo.toEmail)
-                        binding!!.etTitleTemplate.setText(settingVo.title)
                     }
+                    binding!!.etFromEmail.setText(settingVo.fromEmail)
+                    binding!!.etPwd.setText(settingVo.pwd)
+                    binding!!.etNickname.setText(settingVo.nickname)
+                    binding!!.etHost.setText(settingVo.host)
+                    binding!!.etPort.setText(settingVo.port)
+                    binding!!.sbSsl.isChecked = settingVo.ssl == true
+                    binding!!.sbStartTls.isChecked = settingVo.startTls == true
+                    binding!!.etToEmail.setText(settingVo.toEmail)
+                    binding!!.etTitleTemplate.setText(settingVo.title)
                 }
-            })
+            }
+        })
     }
 
     override fun initListeners() {
@@ -238,6 +234,7 @@ class EmailFragment : BaseFragment<FragmentSendersEmailBinding?>(), View.OnClick
                             EmailUtils.sendMsg(settingVo, msgInfo)
                         } catch (e: Exception) {
                             e.printStackTrace()
+                            Log.e(TAG, "onClick error:$e")
                             LiveEventBus.get(EVENT_TOAST_ERROR, String::class.java).post(e.message.toString())
                         }
                         LiveEventBus.get(KEY_SENDER_TEST, String::class.java).post("finish")
@@ -251,17 +248,11 @@ class EmailFragment : BaseFragment<FragmentSendersEmailBinding?>(), View.OnClick
                         return
                     }
 
-                    MaterialDialog.Builder(requireContext())
-                        .title(R.string.delete_sender_title)
-                        .content(R.string.delete_sender_tips)
-                        .positiveText(R.string.lab_yes)
-                        .negativeText(R.string.lab_no)
-                        .onPositive { _: MaterialDialog?, _: DialogAction? ->
-                            viewModel.delete(senderId)
-                            XToastUtils.success(R.string.delete_sender_toast)
-                            popToBack()
-                        }
-                        .show()
+                    MaterialDialog.Builder(requireContext()).title(R.string.delete_sender_title).content(R.string.delete_sender_tips).positiveText(R.string.lab_yes).negativeText(R.string.lab_no).onPositive { _: MaterialDialog?, _: DialogAction? ->
+                        viewModel.delete(senderId)
+                        XToastUtils.success(R.string.delete_sender_toast)
+                        popToBack()
+                    }.show()
                     return
                 }
 
@@ -286,6 +277,7 @@ class EmailFragment : BaseFragment<FragmentSendersEmailBinding?>(), View.OnClick
         } catch (e: Exception) {
             XToastUtils.error(e.message.toString())
             e.printStackTrace()
+            Log.e(TAG, "onClick error:$e")
         }
     }
 

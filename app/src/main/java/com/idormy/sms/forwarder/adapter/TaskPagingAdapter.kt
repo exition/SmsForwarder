@@ -15,9 +15,10 @@ import com.idormy.sms.forwarder.R
 import com.idormy.sms.forwarder.adapter.TaskPagingAdapter.MyViewHolder
 import com.idormy.sms.forwarder.database.entity.Task
 import com.idormy.sms.forwarder.databinding.AdapterTasksCardViewListItemBinding
-import com.idormy.sms.forwarder.entity.task.TaskSetting
+import com.idormy.sms.forwarder.entity.TaskSetting
 import com.xuexiang.xutil.data.DateUtils
 
+@Suppress("EmptyMethod")
 class TaskPagingAdapter(private val itemClickListener: OnItemClickListener) : PagingDataAdapter<Task, MyViewHolder>(diffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
@@ -72,17 +73,36 @@ class TaskPagingAdapter(private val itemClickListener: OnItemClickListener) : Pa
                 holder.binding.ivDelete.setOnClickListener { view: View? ->
                     itemClickListener.onItemClicked(view, item)
                 }
+
+                if (item.status == 0) {
+                    holder.binding.ivArrow.setImageResource(R.drawable.auto_task_icon_left_arrow_grey)
+                    holder.binding.sbEnable.isChecked = false
+                } else {
+                    holder.binding.ivArrow.setImageResource(R.drawable.auto_task_icon_left_arrow)
+                    holder.binding.sbEnable.isChecked = true
+                }
+                holder.binding.sbEnable.setOnClickListener { view: View? ->
+                    itemClickListener.onItemClicked(view, item)
+                }
+                //不能用 setOnCheckedChangeListener，否则会导致切换时状态错乱
+                /*holder.binding.sbEnable.setOnCheckedChangeListener { view: View, isChecked ->
+                    item.status = if (isChecked) 1 else 0
+                    itemClickListener.onItemClicked(view, item)
+                }*/
             } else {
                 holder.binding.layoutImage.visibility = View.VISIBLE
                 holder.binding.layoutIcons.visibility = View.GONE
                 if (item.status == 0) {
+                    holder.binding.ivArrow.setImageResource(R.drawable.auto_task_icon_left_arrow_grey)
                     holder.binding.ivImage.setImageResource(item.greyImageId)
                 } else {
+                    holder.binding.ivArrow.setImageResource(R.drawable.auto_task_icon_left_arrow)
                     holder.binding.ivImage.setImageResource(item.imageId)
                 }
                 holder.binding.ivStatus.setImageResource(item.statusImageId)
                 holder.binding.ivEdit.visibility = View.GONE
                 holder.binding.ivDelete.visibility = View.GONE
+                holder.binding.sbEnable.visibility = View.GONE
             }
             holder.binding.tvName.text = item.name
             holder.binding.tvDescription.text = item.description

@@ -2,7 +2,6 @@ package com.idormy.sms.forwarder.fragment.senders
 
 import android.annotation.SuppressLint
 import android.text.TextUtils
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +11,7 @@ import androidx.fragment.app.viewModels
 import com.google.gson.Gson
 import com.idormy.sms.forwarder.R
 import com.idormy.sms.forwarder.core.BaseFragment
-import com.idormy.sms.forwarder.database.AppDatabase
+import com.idormy.sms.forwarder.core.Core
 import com.idormy.sms.forwarder.database.entity.Sender
 import com.idormy.sms.forwarder.database.viewmodel.BaseViewModelFactory
 import com.idormy.sms.forwarder.database.viewmodel.SenderViewModel
@@ -42,7 +41,7 @@ import java.util.*
 class WeworkAgentFragment : BaseFragment<FragmentSendersWeworkAgentBinding?>(), View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
     private val TAG: String = WeworkAgentFragment::class.java.simpleName
-    var titleBar: TitleBar? = null
+    private var titleBar: TitleBar? = null
     private val viewModel by viewModels<SenderViewModel> { BaseViewModelFactory(context) }
     private var mCountDownHelper: CountDownButtonHelper? = null
 
@@ -99,50 +98,46 @@ class WeworkAgentFragment : BaseFragment<FragmentSendersWeworkAgentBinding?>(), 
 
         //编辑
         binding!!.btnDel.setText(R.string.del)
-        AppDatabase.getInstance(requireContext())
-            .senderDao()
-            .get(senderId)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : SingleObserver<Sender> {
-                override fun onSubscribe(d: Disposable) {}
+        Core.sender.get(senderId).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(object : SingleObserver<Sender> {
+            override fun onSubscribe(d: Disposable) {}
 
-                override fun onError(e: Throwable) {
-                    e.printStackTrace()
-                }
+            override fun onError(e: Throwable) {
+                e.printStackTrace()
+                Log.e(TAG, "onError:$e")
+            }
 
-                override fun onSuccess(sender: Sender) {
-                    if (isClone) {
-                        titleBar?.setSubTitle(getString(R.string.clone_sender) + ": " + sender.name)
-                        binding!!.btnDel.setText(R.string.discard)
-                    } else {
-                        titleBar?.setSubTitle(getString(R.string.edit_sender) + ": " + sender.name)
-                    }
-                    binding!!.etName.setText(sender.name)
-                    binding!!.sbEnable.isChecked = sender.status == 1
-                    val settingVo = Gson().fromJson(sender.jsonSetting, WeworkAgentSetting::class.java)
-                    Log.d(TAG, settingVo.toString())
-                    if (settingVo != null) {
-                        binding!!.etCorpID.setText(settingVo.corpID)
-                        binding!!.etAgentID.setText(settingVo.agentID)
-                        binding!!.etSecret.setText(settingVo.secret)
-                        binding!!.sbAtAll.isChecked = settingVo.atAll == true
-                        binding!!.etToUser.setText(settingVo.toUser)
-                        binding!!.etToParty.setText(settingVo.toParty)
-                        binding!!.etToTag.setText(settingVo.toTag)
-                        binding!!.layoutToUser.visibility = if (settingVo.atAll == true) View.GONE else View.VISIBLE
-                        binding!!.layoutToParty.visibility = if (settingVo.atAll == true) View.GONE else View.VISIBLE
-                        binding!!.layoutToTag.visibility = if (settingVo.atAll == true) View.GONE else View.VISIBLE
-                        binding!!.rgProxyType.check(settingVo.getProxyTypeCheckId())
-                        binding!!.etProxyHost.setText(settingVo.proxyHost)
-                        binding!!.etProxyPort.setText(settingVo.proxyPort)
-                        binding!!.sbProxyAuthenticator.isChecked = settingVo.proxyAuthenticator == true
-                        binding!!.etProxyUsername.setText(settingVo.proxyUsername)
-                        binding!!.etProxyPassword.setText(settingVo.proxyPassword)
-                        binding!!.etCustomizeAPI.setText(settingVo.customizeAPI)
-                    }
+            override fun onSuccess(sender: Sender) {
+                if (isClone) {
+                    titleBar?.setSubTitle(getString(R.string.clone_sender) + ": " + sender.name)
+                    binding!!.btnDel.setText(R.string.discard)
+                } else {
+                    titleBar?.setSubTitle(getString(R.string.edit_sender) + ": " + sender.name)
                 }
-            })
+                binding!!.etName.setText(sender.name)
+                binding!!.sbEnable.isChecked = sender.status == 1
+                val settingVo = Gson().fromJson(sender.jsonSetting, WeworkAgentSetting::class.java)
+                Log.d(TAG, settingVo.toString())
+                if (settingVo != null) {
+                    binding!!.etCorpID.setText(settingVo.corpID)
+                    binding!!.etAgentID.setText(settingVo.agentID)
+                    binding!!.etSecret.setText(settingVo.secret)
+                    binding!!.sbAtAll.isChecked = settingVo.atAll == true
+                    binding!!.etToUser.setText(settingVo.toUser)
+                    binding!!.etToParty.setText(settingVo.toParty)
+                    binding!!.etToTag.setText(settingVo.toTag)
+                    binding!!.layoutToUser.visibility = if (settingVo.atAll == true) View.GONE else View.VISIBLE
+                    binding!!.layoutToParty.visibility = if (settingVo.atAll == true) View.GONE else View.VISIBLE
+                    binding!!.layoutToTag.visibility = if (settingVo.atAll == true) View.GONE else View.VISIBLE
+                    binding!!.rgProxyType.check(settingVo.getProxyTypeCheckId())
+                    binding!!.etProxyHost.setText(settingVo.proxyHost)
+                    binding!!.etProxyPort.setText(settingVo.proxyPort)
+                    binding!!.sbProxyAuthenticator.isChecked = settingVo.proxyAuthenticator == true
+                    binding!!.etProxyUsername.setText(settingVo.proxyUsername)
+                    binding!!.etProxyPassword.setText(settingVo.proxyPassword)
+                    binding!!.etCustomizeAPI.setText(settingVo.customizeAPI)
+                }
+            }
+        })
     }
 
     override fun initListeners() {
@@ -209,6 +204,7 @@ class WeworkAgentFragment : BaseFragment<FragmentSendersWeworkAgentBinding?>(), 
                             WeworkAgentUtils.sendMsg(settingVo, msgInfo)
                         } catch (e: Exception) {
                             e.printStackTrace()
+                            Log.e(TAG, "onClick: $e")
                             LiveEventBus.get(EVENT_TOAST_ERROR, String::class.java).post(e.message.toString())
                         }
                         LiveEventBus.get(KEY_SENDER_TEST, String::class.java).post("finish")
@@ -222,17 +218,11 @@ class WeworkAgentFragment : BaseFragment<FragmentSendersWeworkAgentBinding?>(), 
                         return
                     }
 
-                    MaterialDialog.Builder(requireContext())
-                        .title(R.string.delete_sender_title)
-                        .content(R.string.delete_sender_tips)
-                        .positiveText(R.string.lab_yes)
-                        .negativeText(R.string.lab_no)
-                        .onPositive { _: MaterialDialog?, _: DialogAction? ->
-                            viewModel.delete(senderId)
-                            XToastUtils.success(R.string.delete_sender_toast)
-                            popToBack()
-                        }
-                        .show()
+                    MaterialDialog.Builder(requireContext()).title(R.string.delete_sender_title).content(R.string.delete_sender_tips).positiveText(R.string.lab_yes).negativeText(R.string.lab_no).onPositive { _: MaterialDialog?, _: DialogAction? ->
+                        viewModel.delete(senderId)
+                        XToastUtils.success(R.string.delete_sender_toast)
+                        popToBack()
+                    }.show()
                     return
                 }
 
@@ -257,6 +247,7 @@ class WeworkAgentFragment : BaseFragment<FragmentSendersWeworkAgentBinding?>(), 
         } catch (e: Exception) {
             XToastUtils.error(e.message.toString())
             e.printStackTrace()
+            Log.e(TAG, "onClick: $e")
         }
     }
 

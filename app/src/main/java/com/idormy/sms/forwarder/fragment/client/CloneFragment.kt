@@ -3,7 +3,6 @@ package com.idormy.sms.forwarder.fragment.client
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Environment
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,22 +30,21 @@ import com.xuexiang.xhttp2.exception.ApiException
 import com.xuexiang.xpage.annotation.Page
 import com.xuexiang.xrouter.utils.TextUtils
 import com.xuexiang.xui.utils.CountDownButtonHelper
-import com.xuexiang.xui.utils.ResUtils
 import com.xuexiang.xui.widget.actionbar.TitleBar
 import com.xuexiang.xui.widget.dialog.materialdialog.DialogAction
 import com.xuexiang.xui.widget.dialog.materialdialog.MaterialDialog
-import com.xuexiang.xutil.app.AppUtils
 import com.xuexiang.xutil.data.ConvertTools
 import com.xuexiang.xutil.file.FileIOUtils
 import com.xuexiang.xutil.file.FileUtils
+import com.xuexiang.xutil.resource.ResUtils.getStringArray
 import java.io.File
 import java.util.*
 
-@Suppress("PropertyName")
+@Suppress("PrivatePropertyName")
 @Page(name = "一键换新机")
 class CloneFragment : BaseFragment<FragmentClientCloneBinding?>(), View.OnClickListener {
 
-    val TAG: String = CloneFragment::class.java.simpleName
+    private val TAG: String = CloneFragment::class.java.simpleName
     private var backupPath: String? = null
     private val backupFile = "SmsForwarder.json"
     private var pushCountDownHelper: CountDownButtonHelper? = null
@@ -93,7 +91,7 @@ class CloneFragment : BaseFragment<FragmentClientCloneBinding?>(), View.OnClickL
                 }
             })
 
-        binding!!.tabBar.setTabTitles(ResUtils.getStringArray(R.array.clone_type_option))
+        binding!!.tabBar.setTabTitles(getStringArray(R.array.clone_type_option))
         binding!!.tabBar.setOnTabClickListener { _, position ->
             //XToastUtils.toast("点击了$title--$position")
             if (position == 1) {
@@ -268,8 +266,9 @@ class CloneFragment : BaseFragment<FragmentClientCloneBinding?>(), View.OnClickL
                     requestMsg = RSACrypt.encryptByPublicKey(requestMsg, publicKey)
                     Log.i(TAG, "requestMsg: $requestMsg")
                 } catch (e: Exception) {
-                    XToastUtils.error(ResUtils.getString(R.string.request_failed) + e.message)
+                    XToastUtils.error(getString(R.string.request_failed) + e.message)
                     e.printStackTrace()
+                    Log.e(TAG, e.toString())
                     return
                 }
                 postRequest.upString(requestMsg)
@@ -283,8 +282,9 @@ class CloneFragment : BaseFragment<FragmentClientCloneBinding?>(), View.OnClickL
                     requestMsg = ConvertTools.bytes2HexString(encryptCBC)
                     Log.i(TAG, "requestMsg: $requestMsg")
                 } catch (e: Exception) {
-                    XToastUtils.error(ResUtils.getString(R.string.request_failed) + e.message)
+                    XToastUtils.error(getString(R.string.request_failed) + e.message)
                     e.printStackTrace()
+                    Log.e(TAG, e.toString())
                     return
                 }
                 postRequest.upString(requestMsg)
@@ -317,13 +317,14 @@ class CloneFragment : BaseFragment<FragmentClientCloneBinding?>(), View.OnClickL
                     }
                     val resp: BaseResponse<String> = Gson().fromJson(json, object : TypeToken<BaseResponse<String>>() {}.type)
                     if (resp.code == 200) {
-                        XToastUtils.success(ResUtils.getString(R.string.request_succeeded))
+                        XToastUtils.success(getString(R.string.request_succeeded))
                     } else {
-                        XToastUtils.error(ResUtils.getString(R.string.request_failed) + resp.msg)
+                        XToastUtils.error(getString(R.string.request_failed) + resp.msg)
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    XToastUtils.error(ResUtils.getString(R.string.request_failed) + response)
+                    Log.e(TAG, e.toString())
+                    XToastUtils.error(getString(R.string.request_failed) + response)
                 }
                 pushCountDownHelper?.finish()
             }
@@ -369,8 +370,9 @@ class CloneFragment : BaseFragment<FragmentClientCloneBinding?>(), View.OnClickL
                     requestMsg = RSACrypt.encryptByPublicKey(requestMsg, publicKey)
                     Log.i(TAG, "requestMsg: $requestMsg")
                 } catch (e: Exception) {
-                    XToastUtils.error(ResUtils.getString(R.string.request_failed) + e.message)
+                    XToastUtils.error(getString(R.string.request_failed) + e.message)
                     e.printStackTrace()
+                    Log.e(TAG, e.toString())
                     return
                 }
                 postRequest.upString(requestMsg)
@@ -384,8 +386,9 @@ class CloneFragment : BaseFragment<FragmentClientCloneBinding?>(), View.OnClickL
                     requestMsg = ConvertTools.bytes2HexString(encryptCBC)
                     Log.i(TAG, "requestMsg: $requestMsg")
                 } catch (e: Exception) {
-                    XToastUtils.error(ResUtils.getString(R.string.request_failed) + e.message)
+                    XToastUtils.error(getString(R.string.request_failed) + e.message)
                     e.printStackTrace()
+                    Log.e(TAG, e.toString())
                     return
                 }
                 postRequest.upString(requestMsg)
@@ -427,7 +430,7 @@ class CloneFragment : BaseFragment<FragmentClientCloneBinding?>(), View.OnClickL
                         Log.d(TAG, "cloneInfo = $cloneInfo")
 
                         if (cloneInfo == null) {
-                            XToastUtils.error(ResUtils.getString(R.string.request_failed))
+                            XToastUtils.error(getString(R.string.request_failed))
                             return
                         }
 
@@ -438,12 +441,13 @@ class CloneFragment : BaseFragment<FragmentClientCloneBinding?>(), View.OnClickL
                             XToastUtils.success(getString(R.string.import_succeeded))
                         }
                     } else {
-                        XToastUtils.error(ResUtils.getString(R.string.request_failed) + resp.msg)
+                        XToastUtils.error(getString(R.string.request_failed) + resp.msg)
                     }
 
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    XToastUtils.error(ResUtils.getString(R.string.request_failed) + response)
+                    Log.e(TAG, e.toString())
+                    XToastUtils.error(getString(R.string.request_failed) + response)
                 }
                 exportCountDownHelper?.finish()
             }

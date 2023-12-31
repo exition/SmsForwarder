@@ -1,14 +1,14 @@
 package com.idormy.sms.forwarder.utils
 
+import android.location.Criteria
 import com.idormy.sms.forwarder.R
-import com.xuexiang.xui.utils.ResUtils.getString
+import com.xuexiang.xutil.resource.ResUtils.getString
 
-@Suppress("DEPRECATION")
 class SettingUtils private constructor() {
     companion object {
 
-        //是否是第一次启动
-        //var isFirstOpen: Boolean by SharedPreference(IS_FIRST_OPEN_KEY, true)
+        //是否启动时检查更新
+        var autoCheckUpdate: Boolean by SharedPreference(AUTO_CHECK_UPDATE, true)
 
         //是否同意隐私政策
         var isAgreePrivacy: Boolean by SharedPreference(IS_AGREE_PRIVACY_KEY, false)
@@ -71,39 +71,6 @@ class SettingUtils private constructor() {
         //免打扰(禁用转发)时间段——结束
         var silentPeriodEnd: Int by SharedPreference(SP_SILENT_PERIOD_END, 0)
 
-        //自动删除N天前的转发记录
-        var autoCleanLogsDays: Int by SharedPreference(SP_AUTO_CLEAN_LOGS_DAYS, 0)
-
-        //是否监听网络状态变化
-        var enableNetworkStateReceiver: Boolean by SharedPreference(SP_NET_STATE_RECEIVER, false)
-
-        //是否监听电池状态变化
-        var enableBatteryReceiver: Boolean by SharedPreference(SP_BATTERY_RECEIVER, false)
-
-        //电量预警当前状态
-        var batteryStatus: Int by SharedPreference(SP_BATTERY_STATUS, 0)
-
-        //电量预警当前值
-        var batteryLevelCurrent: Int by SharedPreference(SP_BATTERY_LEVEL_CURRENT, 0)
-
-        //电量预警最低值
-        var batteryLevelMin: Int by SharedPreference(SP_BATTERY_LEVEL_MIN, 0)
-
-        //电量预警最高值
-        var batteryLevelMax: Int by SharedPreference(SP_BATTERY_LEVEL_MAX, 100)
-
-        //是否持续电量预警
-        var batteryLevelOnce: Boolean by SharedPreference(SP_BATTERY_LEVEL_ONCE, false)
-
-        //是否定时推送电池状态
-        var enableBatteryCron: Boolean by SharedPreference(SP_BATTERY_CRON, false)
-
-        //是否定时推送电池状态——开始时间
-        var batteryCronStartTime: String by SharedPreference(SP_BATTERY_CRON_START_TIME, "00:00")
-
-        //是否定时推送电池状态——间隔时间（分钟）
-        var batteryCronInterval: Int by SharedPreference(SP_BATTERY_CRON_INTERVAL, 60)
-
         //是否不在最近任务列表中显示
         var enableExcludeFromRecents: Boolean by SharedPreference(SP_ENABLE_EXCLUDE_FROM_RECENTS, false)
 
@@ -143,17 +110,11 @@ class SettingUtils private constructor() {
         //SIM2备注
         var extraSim2: String by SharedPreference(SP_EXTRA_SIM2, "")
 
-        //SIM卡槽状态监控
-        var enableSimStateReceiver: Boolean by SharedPreference(SP_SIM_STATE_RECEIVER, false)
-
         //是否启用自定义模板
         var enableSmsTemplate: Boolean by SharedPreference(SP_ENABLE_SMS_TEMPLATE, false)
 
         //自定义模板
         var smsTemplate: String by SharedPreference(SP_SMS_TEMPLATE, "")
-
-        //是否显示页面帮助
-        var enableHelpTip: Boolean by SharedPreference(SP_ENABLE_HELP_TIP, false)
 
         //是否纯客户端模式
         var enablePureClientMode: Boolean by SharedPreference(SP_PURE_CLIENT_MODE, false)
@@ -161,8 +122,23 @@ class SettingUtils private constructor() {
         //是否纯任务模式
         var enablePureTaskMode: Boolean by SharedPreference(SP_PURE_TASK_MODE, false)
 
-        //是否启用定位标签
-        var enableLocationTag: Boolean by SharedPreference(SP_LOCATION_TAG, false)
+        //是否调试模式
+        var enableDebugMode: Boolean by SharedPreference(SP_DEBUG_MODE, false)
+
+        //是否启用定位功能
+        var enableLocation: Boolean by SharedPreference(SP_LOCATION, false)
+
+        //设置位置精度：高精度
+        var locationAccuracy: Int by SharedPreference(SP_LOCATION_ACCURACY, Criteria.ACCURACY_FINE)
+
+        //设置电量消耗：低电耗
+        var locationPowerRequirement: Int by SharedPreference(SP_LOCATION_POWER_REQUIREMENT, Criteria.POWER_LOW)
+
+        //设置位置更新最小时间间隔（单位：毫秒）； 默认间隔：10000毫秒，最小间隔：1000毫秒
+        var locationMinInterval: Long by SharedPreference(SP_LOCATION_MIN_INTERVAL, 10000L)
+
+        //设置位置更新最小距离（单位：米）；默认距离：0米
+        var locationMinDistance: Int by SharedPreference(SP_LOCATION_MIN_DISTANCE, 0)
 
     }
 

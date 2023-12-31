@@ -26,7 +26,7 @@ class TaskViewModel(private val dao: TaskDao) : ViewModel() {
             initialLoadSize = 10
         )
     ) {
-        //TODO:根据条件查询，咱不使用
+        //TODO:根据条件查询，暂不使用
         //dao.pagingSource(type)
         if (type == "mine") dao.pagingSourceMine() else dao.pagingSourceFixed()
     }.flow.cachedIn(viewModelScope)
@@ -37,5 +37,9 @@ class TaskViewModel(private val dao: TaskDao) : ViewModel() {
 
     fun delete(id: Long) = ioThread {
         dao.delete(id)
+    }
+
+    fun updateStatus(id: Long, status: Int) = ioThread {
+        dao.updateStatus(id, status)
     }
 }

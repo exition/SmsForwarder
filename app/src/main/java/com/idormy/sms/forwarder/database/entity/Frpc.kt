@@ -6,9 +6,11 @@ import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.idormy.sms.forwarder.R
+import com.idormy.sms.forwarder.utils.STATUS_OFF
 import com.idormy.sms.forwarder.utils.STATUS_ON
+import frpclib.Frpclib
 import kotlinx.parcelize.Parcelize
-import java.util.*
+import java.util.Date
 
 @Parcelize
 @Entity(tableName = "Frpc")
@@ -22,10 +24,16 @@ data class Frpc(
     @Ignore var connecting: Boolean = false,
 ) : Parcelable {
 
+    val imageId: Int
+        get() = R.drawable.ic_menu_frpc
+
     val autorunImageId: Int
         get() = when (autorun) {
             STATUS_ON -> R.drawable.ic_autorun
             else -> R.drawable.ic_manual
         }
+
+    val status: Int
+        get() = if (connecting || Frpclib.isRunning(uid)) STATUS_ON else STATUS_OFF
 
 }

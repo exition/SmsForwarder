@@ -16,6 +16,7 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- 授予应用程序访问系统开机事件的权限 -->
     <uses-permission
@@ -28,7 +29,6 @@
     <uses-permission
         android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
-
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_MMS" />
     <uses-permission android:name="android.permission.RECEIVE_WAP_PUSH" />
@@ -67,18 +67,13 @@
     <uses-permission
         android:name="android.permission.REBOOT"
         tools:ignore="ProtectedPermissions" />
-    <uses-permission
-        android:name="android.permission.WRITE_SETTINGS"
-        tools:ignore="ProtectedPermissions" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
 
     <application
         android:name=".App"
         android:configChanges="screenSize|keyboardHidden|orientation|keyboard"
         android:defaultToDeviceProtectedStorage="true"
         android:directBootAware="true"
+        android:enableOnBackInvokedCallback="false"
         android:fullBackupContent="@xml/backup_descriptor"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
@@ -222,19 +217,17 @@
             android:value="640" />
 
         <service
-            android:name=".service.HttpService"
-            android:enabled="true" />
-        <service
-            android:name=".service.NetworkStateService"
-            android:enabled="true" />
-        <service
-            android:name=".service.BatteryService"
-            android:enabled="true" />
-        <service
             android:name=".service.ForegroundService"
             android:enabled="true" />
         <service
-            android:name=".service.NotifyService"
+            android:name=".service.HttpServerService"
+            android:enabled="true" />
+        <service
+            android:name=".service.LocationService"
+            android:enabled="true"
+            android:foregroundServiceType="location" />
+        <service
+            android:name=".service.NotificationService"
             android:enabled="true"
             android:exported="false"
             android:label="@string/app_name"
@@ -243,14 +236,16 @@
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
-        <service
-            android:name=".workers.CronWorker"
-            android:exported="false"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
-
 
         <receiver
-            android:name=".receiver.BootReceiver"
+            android:name=".receiver.BatteryReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BATTERY_CHANGED" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".receiver.BootCompletedReceiver"
             android:defaultToDeviceProtectedStorage="true"
             android:directBootAware="true"
             android:exported="true"
@@ -260,6 +255,51 @@
                 <action android:name="android.intent.action.USER_PRESENT" />
                 <action android:name="android.intent.action.PACKAGE_RESTARTED" />
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".receiver.CallReceiver"
+            android:exported="true"
+            tools:ignore="IntentFilterExportedReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.PHONE_STATE" />
+                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".receiver.LockScreenReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SCREEN_OFF" />
+                <action android:name="android.intent.action.SCREEN_ON" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".receiver.NetworkChangeReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.READ_PHONE_STATE">
+            <intent-filter>
+                <action
+                    android:name="android.net.conn.CONNECTIVITY_CHANGE"
+                    tools:ignore="BatteryLife" />
+                <action
+                    android:name="android.net.wifi.WIFI_STATE_CHANGED"
+                    tools:ignore="BatteryLife" />
+                <action
+                    android:name="android.net.wifi.STATE_CHANGE"
+                    tools:ignore="BatteryLife" />
+                <!--<action
+                    android:name="android.intent.action.DATA_CONNECTION_STATE_CHANGED"
+                    tools:ignore="BatteryLife" />-->
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".receiver.SimStateReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SIM_STATE_CHANGED" />
             </intent-filter>
         </receiver>
         <receiver
@@ -281,25 +321,19 @@
                 <data android:mimeType="application/vnd.wap.mms-message" />
             </intent-filter>
         </receiver>
-        <receiver
-            android:name=".receiver.CallReceiver"
-            android:exported="true"
-            tools:ignore="IntentFilterExportedReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.PHONE_STATE" />
-                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
-            </intent-filter>
-        </receiver>
-        <receiver
-            android:name=".receiver.SimStateReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.SIM_STATE_CHANGED" />
-            </intent-filter>
-        </receiver>
-        <receiver android:name=".receiver.AlarmReceiver" />
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <!-- If you are using androidx.startup to initialize other components -->
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
+
     </application>
 
 </manifest>

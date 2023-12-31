@@ -4,13 +4,13 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.provider.Telephony
-import android.util.Log
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.google.gson.Gson
 import com.idormy.sms.forwarder.App
 import com.idormy.sms.forwarder.entity.MsgInfo
+import com.idormy.sms.forwarder.utils.Log
 import com.idormy.sms.forwarder.utils.PhoneUtils
 import com.idormy.sms.forwarder.utils.SettingUtils
 import com.idormy.sms.forwarder.utils.SmsCommandUtils
@@ -20,10 +20,10 @@ import com.xuexiang.xrouter.utils.TextUtils
 import java.util.Date
 
 //短信广播
-@Suppress("PrivatePropertyName")
+@Suppress("PrivatePropertyName", "UNUSED_PARAMETER")
 class SmsReceiver : BroadcastReceiver() {
 
-    private var TAG = "SmsReceiver"
+    private var TAG = SmsReceiver::class.java.simpleName
     private var from = ""
     private var msg = ""
 
@@ -193,6 +193,7 @@ class SmsReceiver : BroadcastReceiver() {
 
         } catch (e: Exception) {
             e.printStackTrace()
+            Log.e(TAG, "handleMmsData: $e")
         }
     }
 

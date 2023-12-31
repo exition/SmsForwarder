@@ -1,7 +1,13 @@
 package com.idormy.sms.forwarder.database.dao
 
 import androidx.paging.PagingSource
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.Query
+import androidx.room.RawQuery
+import androidx.room.Transaction
+import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.idormy.sms.forwarder.database.entity.Rule
 import io.reactivex.Completable
@@ -25,6 +31,9 @@ interface RuleDao {
     @Update
     fun update(rule: Rule)
 
+    @Query("UPDATE Rule SET status=:status WHERE id IN (:ids)")
+    fun updateStatusByIds(ids: List<Long>, status: Int)
+
     @Query("SELECT * FROM Rule where id=:id")
     fun get(id: Long): Single<Rule>
 
@@ -45,4 +54,8 @@ interface RuleDao {
     @Transaction
     @RawQuery(observedEntities = [Rule::class])
     fun getAllRaw(query: SupportSQLiteQuery): List<Rule>
+
+    @Query("SELECT * FROM Rule ORDER BY id DESC")
+    fun getAll(): Single<List<Rule>>
+
 }

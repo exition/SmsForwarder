@@ -4,9 +4,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.telephony.TelephonyManager
-import android.util.Log
+import com.idormy.sms.forwarder.utils.Log
 import com.idormy.sms.forwarder.utils.SettingUtils
-import java.util.*
+import java.util.Date
 
 @Suppress("DEPRECATION")
 abstract class PhoneStateReceiver : BroadcastReceiver() {
@@ -70,6 +70,7 @@ abstract class PhoneStateReceiver : BroadcastReceiver() {
 
                 onIncomingCallReceived(context, number, callStartTime)
             }
+
             TelephonyManager.CALL_STATE_OFFHOOK ->
                 //Transition of ringing->offhook are pickups of incoming calls.  Nothing done on them
                 if (lastState != TelephonyManager.CALL_STATE_RINGING) {
@@ -83,6 +84,7 @@ abstract class PhoneStateReceiver : BroadcastReceiver() {
 
                     onIncomingCallAnswered(context, savedNumber, callStartTime)
                 }
+
             TelephonyManager.CALL_STATE_IDLE ->
                 //Went to idle-  this is the end of a call.  What type depends on previous state(s)
                 if (lastState == TelephonyManager.CALL_STATE_RINGING) {

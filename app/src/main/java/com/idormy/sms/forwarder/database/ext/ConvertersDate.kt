@@ -1,9 +1,8 @@
 package com.idormy.sms.forwarder.database.ext
 
 import androidx.room.TypeConverter
-import java.util.*
+import java.util.Date
 
-@Suppress("unused")
 class ConvertersDate {
     @TypeConverter
     fun fromTimestamp(value: Long?): Date? {

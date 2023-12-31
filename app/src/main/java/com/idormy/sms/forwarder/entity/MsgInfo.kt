@@ -2,22 +2,23 @@ package com.idormy.sms.forwarder.entity
 
 import android.annotation.SuppressLint
 import android.text.TextUtils
-import android.util.Log
+import com.idormy.sms.forwarder.utils.Log
 import com.idormy.sms.forwarder.App
 import com.idormy.sms.forwarder.R
-import com.idormy.sms.forwarder.utils.CALL_TYPE_MAP
+import com.idormy.sms.forwarder.utils.AppUtils
+import com.idormy.sms.forwarder.utils.BatteryUtils
 import com.idormy.sms.forwarder.utils.HttpServerUtils
 import com.idormy.sms.forwarder.utils.SettingUtils
 import com.idormy.sms.forwarder.utils.SettingUtils.Companion.enableSmsTemplate
 import com.idormy.sms.forwarder.utils.SettingUtils.Companion.extraDeviceMark
 import com.idormy.sms.forwarder.utils.SettingUtils.Companion.smsTemplate
-import com.xuexiang.xui.utils.ResUtils.getString
-import com.xuexiang.xutil.app.AppUtils
+import com.idormy.sms.forwarder.utils.task.TaskUtils
+import com.xuexiang.xutil.resource.ResUtils.getString
 import java.io.Serializable
 import java.text.SimpleDateFormat
 import java.util.*
 
-@Suppress("unused", "DEPRECATION")
+@Suppress("unused")
 data class MsgInfo(
     var type: String = "sms",
     var from: String,
@@ -30,8 +31,19 @@ data class MsgInfo(
     var uid: Int = 0, //APP通知的UID
 ) : Serializable {
 
-    val titleForSend: String
+    private val titleForSend: String
         get() = getTitleForSend("", "")
+
+    //通话类型：1.来电挂机 2.去电挂机 3.未接来电 4.来电提醒 5.来电接通 6.去电拨出
+    private val callTypeMap = mapOf(
+        //"0" to getString(R.string.unknown_call),
+        "1" to getString(R.string.incoming_call_ended),
+        "2" to getString(R.string.outgoing_call_ended),
+        "3" to getString(R.string.missed_call),
+        "4" to getString(R.string.incoming_call_received),
+        "5" to getString(R.string.incoming_call_answered),
+        "6" to getString(R.string.outgoing_call_started),
+    )
 
     fun getTitleForSend(titleTemplate: String): String {
         return getTitleForSend(titleTemplate, "")
@@ -59,7 +71,7 @@ data class MsgInfo(
             .replace(getString(R.string.tag_current_time), SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date()))
             .replace(getString(R.string.tag_device_name), deviceMark)
             .replace(getString(R.string.tag_app_version), versionName)
-            .replace(getString(R.string.tag_call_type), CALL_TYPE_MAP[callType.toString()] ?: getString(R.string.unknown_call))
+            .replace(getString(R.string.tag_call_type), callTypeMap[callType.toString()] ?: getString(R.string.unknown_call))
             .trim()
         return replaceLocationTag(replaceAppName(regexReplace(titleForSend, regexReplace), from))
     }
@@ -108,7 +120,11 @@ data class MsgInfo(
             .replace(getString(R.string.tag_current_time), SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date()))
             .replace(getString(R.string.tag_device_name), deviceMark)
             .replace(getString(R.string.tag_app_version), versionName)
-            .replace(getString(R.string.tag_call_type), CALL_TYPE_MAP[callType.toString()] ?: getString(R.string.unknown_call))
+            .replace(getString(R.string.tag_call_type), callTypeMap[callType.toString()] ?: getString(R.string.unknown_call))
+            .replace(getString(R.string.tag_battery_pct), TaskUtils.batteryPct.toString())
+            .replace(getString(R.string.tag_battery_status), BatteryUtils.getStatus(TaskUtils.batteryStatus))
+            .replace(getString(R.string.tag_battery_plugged), BatteryUtils.getPlugged(TaskUtils.batteryPlugged))
+            .replace(getString(R.string.tag_battery_info), TaskUtils.batteryInfo)
             .trim()
         return replaceLocationTag(replaceAppName(regexReplace(smsVoForSend, regexReplace), from))
     }

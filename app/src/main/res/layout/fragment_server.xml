@@ -35,16 +35,15 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:text="@string/server_settings_tips"
-                    android:textSize="10sp"
+                    android:textSize="@dimen/text_size_mini"
                     tools:ignore="SmallSp" />
 
             </LinearLayout>
 
             <LinearLayout
-                style="@style/settingBarStyle"
+                style="@style/BarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingEnd="15dp"
                 tools:ignore="RtlSymmetry">
 
                 <LinearLayout
@@ -77,7 +76,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="2dp"
                             android:text="@string/auto_startup"
-                            android:textSize="11sp" />
+                            android:textSize="@dimen/text_size_small" />
 
                     </LinearLayout>
 
@@ -96,7 +95,7 @@
                             android:padding="3dp"
                             android:text="@string/copy"
                             android:textColor="@color/white"
-                            android:textSize="10sp"
+                            android:textSize="@dimen/text_size_mini"
                             app:sb_color_unpressed="@color/colorStart"
                             app:sb_ripple_color="@color/white"
                             app:sb_ripple_duration="500"
@@ -108,7 +107,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/http_server_stopped"
-                            android:textSize="10sp"
+                            android:textSize="@dimen/text_size_mini"
                             tools:ignore="SmallSp" />
 
                     </LinearLayout>
@@ -124,7 +123,7 @@
                     android:padding="5dp"
                     android:text="@string/start_server"
                     android:textColor="@color/white"
-                    android:textSize="10sp"
+                    android:textSize="@dimen/text_size_mini"
                     app:sb_color_unpressed="@color/colorPrimary"
                     app:sb_ripple_color="@color/white"
                     app:sb_ripple_duration="500"
@@ -134,7 +133,7 @@
             </LinearLayout>
 
             <LinearLayout
-                style="@style/settingBarStyle"
+                style="@style/BarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -158,7 +157,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
                         android:text="@string/safety_measures_tips"
-                        android:textSize="10sp"
+                        android:textSize="@dimen/text_size_mini"
                         tools:ignore="SmallSp" />
 
                 </LinearLayout>
@@ -195,10 +194,9 @@
 
             <LinearLayout
                 android:id="@+id/layout_sign_key"
-                style="@style/settingBarStyle"
+                style="@style/BarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingEnd="15dp"
                 android:visibility="gone"
                 tools:ignore="RtlSymmetry">
 
@@ -224,7 +222,7 @@
                     android:padding="5dp"
                     android:text="@string/random"
                     android:textColor="@color/white"
-                    android:textSize="10sp"
+                    android:textSize="@dimen/text_size_mini"
                     app:sb_color_unpressed="@color/colorPrimary"
                     app:sb_ripple_color="@color/white"
                     app:sb_ripple_duration="500"
@@ -235,10 +233,9 @@
 
             <LinearLayout
                 android:id="@+id/layout_time_tolerance"
-                style="@style/settingBarStyle"
+                style="@style/BarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingEnd="15dp"
                 android:visibility="gone"
                 tools:ignore="RtlSymmetry">
 
@@ -258,7 +255,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/time_tolerance_tips"
-                        android:textSize="9sp"
+                        android:textSize="@dimen/text_size_mini"
                         tools:ignore="SmallSp" />
 
                 </LinearLayout>
@@ -277,17 +274,16 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
                     android:text="@string/seconds"
-                    android:textSize="12sp"
+                    android:textSize="@dimen/text_size_small"
                     android:textStyle="bold" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/layout_private_key"
-                style="@style/settingBarStyle"
+                style="@style/BarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingEnd="15dp"
                 android:visibility="gone"
                 tools:ignore="RtlSymmetry">
 
@@ -310,7 +306,7 @@
                     android:maxLines="5"
                     android:minLines="2"
                     android:scrollbars="vertical"
-                    android:textSize="10sp"
+                    android:textSize="@dimen/text_size_mini"
                     tools:ignore="SmallSp" />
 
                 <com.xuexiang.xui.widget.button.shadowbutton.RippleShadowShadowButton
@@ -322,7 +318,7 @@
                     android:padding="5dp"
                     android:text="@string/generate_key"
                     android:textColor="@color/white"
-                    android:textSize="10sp"
+                    android:textSize="@dimen/text_size_mini"
                     app:sb_color_unpressed="@color/colorPrimary"
                     app:sb_ripple_color="@color/white"
                     app:sb_ripple_duration="500"
@@ -333,10 +329,9 @@
 
             <LinearLayout
                 android:id="@+id/layout_public_key"
-                style="@style/settingBarStyle"
+                style="@style/BarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingEnd="15dp"
                 android:visibility="gone"
                 tools:ignore="RtlSymmetry">
 
@@ -359,7 +354,7 @@
                     android:maxLines="5"
                     android:minLines="2"
                     android:scrollbars="vertical"
-                    android:textSize="10sp"
+                    android:textSize="@dimen/text_size_mini"
                     tools:ignore="SmallSp" />
 
                 <com.xuexiang.xui.widget.button.shadowbutton.RippleShadowShadowButton
@@ -371,7 +366,7 @@
                     android:padding="5dp"
                     android:text="@string/copy_public_key"
                     android:textColor="@color/white"
-                    android:textSize="10sp"
+                    android:textSize="@dimen/text_size_mini"
                     app:sb_color_unpressed="@color/colorPrimary"
                     app:sb_ripple_color="@color/white"
                     app:sb_ripple_duration="500"
@@ -382,10 +377,9 @@
 
             <LinearLayout
                 android:id="@+id/layout_sm4_key"
-                style="@style/settingBarStyle"
+                style="@style/BarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingEnd="15dp"
                 android:visibility="gone"
                 tools:ignore="RtlSymmetry">
 
@@ -412,7 +406,7 @@
                     android:padding="5dp"
                     android:text="@string/generate_key"
                     android:textColor="@color/white"
-                    android:textSize="10sp"
+                    android:textSize="@dimen/text_size_mini"
                     app:sb_color_unpressed="@color/colorPrimary"
                     app:sb_ripple_color="@color/white"
                     app:sb_ripple_duration="500"
@@ -441,15 +435,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:text="@string/enable_function_tips"
-                    android:textSize="10sp"
+                    android:textSize="@dimen/text_size_mini"
                     tools:ignore="SmallSp" />
             </LinearLayout>
 
             <LinearLayout
-                style="@style/settingBarStyle"
+                style="@style/BarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingEnd="15dp"
                 tools:ignore="RtlSymmetry">
 
                 <TextView
@@ -465,7 +458,7 @@
                     android:layout_marginStart="5dp"
                     android:layout_weight="1"
                     android:hint="@string/web_path_tips"
-                    android:textSize="10sp"
+                    android:textSize="@dimen/text_size_mini"
                     tools:ignore="SmallSp" />
 
                 <com.xuexiang.xui.widget.button.shadowbutton.RippleShadowShadowButton
@@ -477,7 +470,7 @@
                     android:padding="5dp"
                     android:text="@string/select_directory"
                     android:textColor="@color/white"
-                    android:textSize="10sp"
+                    android:textSize="@dimen/text_size_mini"
                     app:sb_color_unpressed="@color/colorPrimary"
                     app:sb_ripple_color="@color/white"
                     app:sb_ripple_duration="500"
@@ -487,7 +480,7 @@
             </LinearLayout>
 
             <LinearLayout
-                style="@style/settingBarStyle"
+                style="@style/BarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -508,7 +501,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/api_clone_tips"
-                        android:textSize="9sp"
+                        android:textSize="@dimen/text_size_mini"
                         tools:ignore="SmallSp" />
 
                 </LinearLayout>
@@ -522,7 +515,7 @@
             </LinearLayout>
 
             <LinearLayout
-                style="@style/settingBarStyle"
+                style="@style/BarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -543,7 +536,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/api_sms_query_tips"
-                        android:textSize="9sp"
+                        android:textSize="@dimen/text_size_mini"
                         tools:ignore="SmallSp" />
 
                 </LinearLayout>
@@ -557,7 +550,7 @@
             </LinearLayout>
 
             <LinearLayout
-                style="@style/settingBarStyle"
+                style="@style/BarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -578,7 +571,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/api_sms_send_tips"
-                        android:textSize="9sp"
+                        android:textSize="@dimen/text_size_mini"
                         tools:ignore="SmallSp" />
 
                 </LinearLayout>
@@ -592,7 +585,7 @@
             </LinearLayout>
 
             <LinearLayout
-                style="@style/settingBarStyle"
+                style="@style/BarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -613,7 +606,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/api_call_query_tips"
-                        android:textSize="9sp"
+                        android:textSize="@dimen/text_size_mini"
                         tools:ignore="SmallSp" />
 
                 </LinearLayout>
@@ -627,7 +620,7 @@
             </LinearLayout>
 
             <LinearLayout
-                style="@style/settingBarStyle"
+                style="@style/BarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -648,7 +641,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/api_contact_query_tips"
-                        android:textSize="9sp"
+                        android:textSize="@dimen/text_size_mini"
                         tools:ignore="SmallSp" />
 
                 </LinearLayout>
@@ -662,7 +655,7 @@
             </LinearLayout>
 
             <LinearLayout
-                style="@style/settingBarStyle"
+                style="@style/BarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 tools:ignore="TooManyViews">
@@ -684,7 +677,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/api_contact_add_tips"
-                        android:textSize="9sp"
+                        android:textSize="@dimen/text_size_mini"
                         tools:ignore="SmallSp" />
 
                 </LinearLayout>
@@ -698,7 +691,7 @@
             </LinearLayout>
 
             <LinearLayout
-                style="@style/settingBarStyle"
+                style="@style/BarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -719,7 +712,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/api_wol_tips"
-                        android:textSize="9sp"
+                        android:textSize="@dimen/text_size_mini"
                         tools:ignore="SmallSp" />
 
                 </LinearLayout>
@@ -733,7 +726,7 @@
             </LinearLayout>
 
             <LinearLayout
-                style="@style/settingBarStyle"
+                style="@style/BarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -754,7 +747,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/api_location_tips"
-                        android:textSize="9sp"
+                        android:textSize="@dimen/text_size_mini"
                         tools:ignore="SmallSp" />
 
                 </LinearLayout>
@@ -768,7 +761,7 @@
             </LinearLayout>
 
             <LinearLayout
-                style="@style/settingBarStyle"
+                style="@style/BarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 tools:ignore="TooManyViews">
@@ -790,7 +783,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/api_battery_query_tips"
-                        android:textSize="9sp"
+                        android:textSize="@dimen/text_size_mini"
                         tools:ignore="SmallSp" />
 
                 </LinearLayout>

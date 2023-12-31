@@ -14,29 +14,28 @@ import com.idormy.sms.forwarder.database.entity.Task
 import com.idormy.sms.forwarder.database.viewmodel.BaseViewModelFactory
 import com.idormy.sms.forwarder.database.viewmodel.TaskViewModel
 import com.idormy.sms.forwarder.databinding.FragmentTasksBinding
-import com.idormy.sms.forwarder.utils.EVENT_UPDATE_TASK_TYPE
 import com.idormy.sms.forwarder.utils.KEY_TASK_CLONE
 import com.idormy.sms.forwarder.utils.KEY_TASK_ID
+import com.idormy.sms.forwarder.utils.Log
 import com.idormy.sms.forwarder.utils.XToastUtils
-import com.jeremyliao.liveeventbus.LiveEventBus
 import com.scwang.smartrefresh.layout.api.RefreshLayout
 import com.xuexiang.xaop.annotation.SingleClick
 import com.xuexiang.xpage.annotation.Page
 import com.xuexiang.xpage.core.PageOption
-import com.xuexiang.xui.utils.ResUtils
 import com.xuexiang.xui.utils.ThemeUtils
 import com.xuexiang.xui.widget.actionbar.TitleBar
 import com.xuexiang.xui.widget.dialog.materialdialog.DialogAction
 import com.xuexiang.xui.widget.dialog.materialdialog.MaterialDialog
+import com.xuexiang.xutil.resource.ResUtils.getStringArray
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-@Suppress("PropertyName", "DEPRECATION")
+@Suppress("PrivatePropertyName")
 @Page(name = "自动任务")
 class TasksFragment : BaseFragment<FragmentTasksBinding?>(), TaskPagingAdapter.OnItemClickListener {
 
-    val TAG: String = TasksFragment::class.java.simpleName
-    var titleBar: TitleBar? = null
+    private val TAG: String = TasksFragment::class.java.simpleName
+    private var titleBar: TitleBar? = null
     private var adapter = TaskPagingAdapter(this)
     private val viewModel by viewModels<TaskViewModel> { BaseViewModelFactory(context) }
     private var currentType: String = "mine"
@@ -71,7 +70,7 @@ class TasksFragment : BaseFragment<FragmentTasksBinding?>(), TaskPagingAdapter.O
         binding!!.recyclerView.setRecycledViewPool(viewPool)
         viewPool.setMaxRecycledViews(0, 10)
 
-        binding!!.tabBar.setTabTitles(ResUtils.getStringArray(R.array.task_type_option))
+        binding!!.tabBar.setTabTitles(getStringArray(R.array.task_type_option))
         binding!!.tabBar.setOnTabClickListener { _, position ->
             //XToastUtils.toast("点击了$title--$position")
             currentType = when (position) {
@@ -79,7 +78,6 @@ class TasksFragment : BaseFragment<FragmentTasksBinding?>(), TaskPagingAdapter.O
                 else -> "mine"
             }
             viewModel.setType(currentType)
-            LiveEventBus.get(EVENT_UPDATE_TASK_TYPE, String::class.java).post(currentType)
             adapter.refresh()
             binding!!.recyclerView.scrollToPosition(0)
         }
@@ -104,6 +102,12 @@ class TasksFragment : BaseFragment<FragmentTasksBinding?>(), TaskPagingAdapter.O
 
     override fun onItemClicked(view: View?, item: Task) {
         when (view?.id) {
+            R.id.sb_enable -> {
+                item.status = if (item.status == 0) 1 else 0
+                Log.d(TAG, "sb_enable: ${item.id}, ${item.status}")
+                viewModel.updateStatus(item.id, item.status)
+            }
+
             R.id.iv_copy -> {
                 PageOption.to(TasksEditFragment::class.java)
                     .setNewActivity(true).putLong(KEY_TASK_ID, item.id)

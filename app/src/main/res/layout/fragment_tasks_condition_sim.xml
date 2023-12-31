@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -16,10 +17,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
+            android:gravity="center_horizontal"
             android:orientation="vertical">
 
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_margin="10dp"
+                android:contentDescription="@string/task_sim"
+                app:srcCompat="@drawable/auto_task_icon_sim"
+                tools:ignore="ImageContrastCheck" />
+
             <LinearLayout
-                style="@style/taskBarStyle"
+                style="@style/BarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
@@ -28,7 +38,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/task_sim"
+                    android:textSize="@dimen/text_size_big"
                     android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/task_sim_tips"
+                    android:textSize="@dimen/text_size_mini"
+                    tools:ignore="SmallSp" />
 
                 <View
                     android:layout_width="match_parent"
@@ -79,33 +98,17 @@
 
         <com.xuexiang.xui.widget.textview.supertextview.SuperButton
             android:id="@+id/btn_del"
-            style="@style/SuperButton.Gray.Icon"
-            android:drawableStart="@drawable/icon_delete"
-            android:paddingStart="15dp"
+            style="@style/SuperButton.Gray.Icon.Spacing"
+            android:drawableStart="@drawable/ic_delete"
             android:text="@string/discard"
-            android:textSize="11sp"
             tools:ignore="RtlSymmetry,TextContrastCheck,TouchTargetSizeCheck" />
 
         <com.xuexiang.xui.widget.textview.supertextview.SuperButton
             android:id="@+id/btn_save"
-            style="@style/SuperButton.Blue.Icon"
-            android:layout_marginStart="10dp"
-            android:drawableStart="@drawable/icon_save"
-            android:paddingStart="15dp"
+            style="@style/SuperButton.Blue.Icon.Spacing"
+            android:drawableStart="@drawable/ic_save"
             android:text="@string/submit"
-            android:textSize="11sp"
             tools:ignore="RtlSymmetry,TextContrastCheck,TouchTargetSizeCheck" />
-
-        <com.xuexiang.xui.widget.textview.supertextview.SuperButton
-            android:id="@+id/btn_test"
-            style="@style/SuperButton.Green.Icon"
-            android:layout_marginStart="10dp"
-            android:drawableStart="@drawable/icon_test"
-            android:paddingStart="15dp"
-            android:text="@string/test"
-            android:textSize="11sp"
-            android:visibility="gone"
-            tools:ignore="RtlSymmetry" />
 
     </LinearLayout>
 

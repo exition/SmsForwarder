@@ -20,7 +20,7 @@
             android:orientation="vertical">
 
             <LinearLayout
-                style="@style/senderBarStyleWithSwitch"
+                style="@style/BarStyle.Switch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -52,7 +52,7 @@
             </LinearLayout>
 
             <LinearLayout
-                style="@style/senderBarStyle"
+                style="@style/BarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
@@ -67,7 +67,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/wework_webHook_tips"
-                    android:textSize="10sp"
+                    android:textSize="@dimen/text_size_mini"
                     tools:ignore="SmallSp" />
 
                 <com.xuexiang.xui.widget.edittext.materialedittext.MaterialEditText
@@ -81,7 +81,7 @@
             </LinearLayout>
 
             <LinearLayout
-                style="@style/senderBarStyle"
+                style="@style/BarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -122,7 +122,7 @@
                 android:orientation="vertical">
 
                 <LinearLayout
-                    style="@style/senderBarStyleWithSwitch"
+                    style="@style/BarStyle.Switch"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
@@ -146,7 +146,7 @@
 
                 <LinearLayout
                     android:id="@+id/layout_at_user_ids"
-                    style="@style/senderBarStyle"
+                    style="@style/BarStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -163,7 +163,7 @@
                         android:layout_height="wrap_content"
                         android:maxLines="1"
                         android:text="@string/wework_at_userids_tip"
-                        android:textSize="10sp"
+                        android:textSize="@dimen/text_size_mini"
                         tools:ignore="SmallSp" />
 
                     <com.xuexiang.xui.widget.edittext.materialedittext.MaterialEditText
@@ -177,7 +177,7 @@
 
                 <LinearLayout
                     android:id="@+id/layout_at_mobiles"
-                    style="@style/senderBarStyle"
+                    style="@style/BarStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -194,7 +194,7 @@
                         android:layout_height="wrap_content"
                         android:maxLines="1"
                         android:text="@string/wework_at_mobiles_tip"
-                        android:textSize="10sp"
+                        android:textSize="@dimen/text_size_mini"
                         tools:ignore="SmallSp" />
 
                     <com.xuexiang.xui.widget.edittext.materialedittext.MaterialEditText
@@ -221,31 +221,23 @@
 
         <com.xuexiang.xui.widget.textview.supertextview.SuperButton
             android:id="@+id/btn_del"
-            style="@style/SuperButton.Gray.Icon"
-            android:drawableStart="@drawable/icon_delete"
-            android:paddingStart="15dp"
+            style="@style/SuperButton.Gray.Icon.Spacing"
+            android:drawableStart="@drawable/ic_delete"
             android:text="@string/del"
-            android:textSize="11sp"
             tools:ignore="RtlSymmetry,TextContrastCheck,TouchTargetSizeCheck" />
 
         <com.xuexiang.xui.widget.textview.supertextview.SuperButton
             android:id="@+id/btn_save"
-            style="@style/SuperButton.Blue.Icon"
-            android:layout_marginStart="10dp"
-            android:drawableStart="@drawable/icon_save"
-            android:paddingStart="15dp"
+            style="@style/SuperButton.Blue.Icon.Spacing"
+            android:drawableStart="@drawable/ic_save"
             android:text="@string/save"
-            android:textSize="11sp"
             tools:ignore="RtlSymmetry,TextContrastCheck,TouchTargetSizeCheck" />
 
         <com.xuexiang.xui.widget.textview.supertextview.SuperButton
             android:id="@+id/btn_test"
-            style="@style/SuperButton.Green.Icon"
-            android:layout_marginStart="10dp"
-            android:drawableStart="@drawable/icon_test"
-            android:paddingStart="15dp"
+            style="@style/SuperButton.Green.Icon.Spacing"
+            android:drawableStart="@drawable/ic_test"
             android:text="@string/test"
-            android:textSize="11sp"
             tools:ignore="RtlSymmetry,TextContrastCheck,TouchTargetSizeCheck" />
 
     </LinearLayout>

@@ -1,7 +1,6 @@
 package com.idormy.sms.forwarder.fragment.senders
 
 import android.text.TextUtils
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,7 +8,7 @@ import androidx.fragment.app.viewModels
 import com.google.gson.Gson
 import com.idormy.sms.forwarder.R
 import com.idormy.sms.forwarder.core.BaseFragment
-import com.idormy.sms.forwarder.database.AppDatabase
+import com.idormy.sms.forwarder.core.Core
 import com.idormy.sms.forwarder.database.entity.Sender
 import com.idormy.sms.forwarder.database.viewmodel.BaseViewModelFactory
 import com.idormy.sms.forwarder.database.viewmodel.SenderViewModel
@@ -21,6 +20,7 @@ import com.idormy.sms.forwarder.utils.KEY_SENDER_CLONE
 import com.idormy.sms.forwarder.utils.KEY_SENDER_ID
 import com.idormy.sms.forwarder.utils.KEY_SENDER_TEST
 import com.idormy.sms.forwarder.utils.KEY_SENDER_TYPE
+import com.idormy.sms.forwarder.utils.Log
 import com.idormy.sms.forwarder.utils.SettingUtils
 import com.idormy.sms.forwarder.utils.XToastUtils
 import com.idormy.sms.forwarder.utils.sender.ServerchanUtils
@@ -44,7 +44,7 @@ import java.util.Date
 class ServerchanFragment : BaseFragment<FragmentSendersServerchanBinding?>(), View.OnClickListener {
 
     private val TAG: String = ServerchanFragment::class.java.simpleName
-    var titleBar: TitleBar? = null
+    private var titleBar: TitleBar? = null
     private val viewModel by viewModels<SenderViewModel> { BaseViewModelFactory(context) }
     private var mCountDownHelper: CountDownButtonHelper? = null
 
@@ -101,36 +101,32 @@ class ServerchanFragment : BaseFragment<FragmentSendersServerchanBinding?>(), Vi
 
         //编辑
         binding!!.btnDel.setText(R.string.del)
-        AppDatabase.getInstance(requireContext())
-            .senderDao()
-            .get(senderId)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : SingleObserver<Sender> {
-                override fun onSubscribe(d: Disposable) {}
+        Core.sender.get(senderId).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(object : SingleObserver<Sender> {
+            override fun onSubscribe(d: Disposable) {}
 
-                override fun onError(e: Throwable) {
-                    e.printStackTrace()
-                }
+            override fun onError(e: Throwable) {
+                e.printStackTrace()
+                Log.e(TAG, "onError:$e")
+            }
 
-                override fun onSuccess(sender: Sender) {
-                    if (isClone) {
-                        titleBar?.setSubTitle(getString(R.string.clone_sender) + ": " + sender.name)
-                        binding!!.btnDel.setText(R.string.discard)
-                    } else {
-                        titleBar?.setSubTitle(getString(R.string.edit_sender) + ": " + sender.name)
-                    }
-                    binding!!.etName.setText(sender.name)
-                    binding!!.sbEnable.isChecked = sender.status == 1
-                    val settingVo = Gson().fromJson(sender.jsonSetting, ServerchanSetting::class.java)
-                    Log.d(TAG, settingVo.toString())
-                    if (settingVo != null) {
-                        binding!!.etSendKey.setText(settingVo.sendKey)
-                        binding!!.etChannel.setText(settingVo.channel)
-                        binding!!.etOpenid.setText(settingVo.openid)
-                    }
+            override fun onSuccess(sender: Sender) {
+                if (isClone) {
+                    titleBar?.setSubTitle(getString(R.string.clone_sender) + ": " + sender.name)
+                    binding!!.btnDel.setText(R.string.discard)
+                } else {
+                    titleBar?.setSubTitle(getString(R.string.edit_sender) + ": " + sender.name)
                 }
-            })
+                binding!!.etName.setText(sender.name)
+                binding!!.sbEnable.isChecked = sender.status == 1
+                val settingVo = Gson().fromJson(sender.jsonSetting, ServerchanSetting::class.java)
+                Log.d(TAG, settingVo.toString())
+                if (settingVo != null) {
+                    binding!!.etSendKey.setText(settingVo.sendKey)
+                    binding!!.etChannel.setText(settingVo.channel)
+                    binding!!.etOpenid.setText(settingVo.openid)
+                }
+            }
+        })
     }
 
     override fun initListeners() {
@@ -155,6 +151,7 @@ class ServerchanFragment : BaseFragment<FragmentSendersServerchanBinding?>(), Vi
                             ServerchanUtils.sendMsg(settingVo, msgInfo)
                         } catch (e: Exception) {
                             e.printStackTrace()
+                            Log.e(TAG, "onClick: $e")
                             LiveEventBus.get(EVENT_TOAST_ERROR, String::class.java).post(e.message.toString())
                         }
                         LiveEventBus.get(KEY_SENDER_TEST, String::class.java).post("finish")
@@ -168,17 +165,11 @@ class ServerchanFragment : BaseFragment<FragmentSendersServerchanBinding?>(), Vi
                         return
                     }
 
-                    MaterialDialog.Builder(requireContext())
-                        .title(R.string.delete_sender_title)
-                        .content(R.string.delete_sender_tips)
-                        .positiveText(R.string.lab_yes)
-                        .negativeText(R.string.lab_no)
-                        .onPositive { _: MaterialDialog?, _: DialogAction? ->
-                            viewModel.delete(senderId)
-                            XToastUtils.success(R.string.delete_sender_toast)
-                            popToBack()
-                        }
-                        .show()
+                    MaterialDialog.Builder(requireContext()).title(R.string.delete_sender_title).content(R.string.delete_sender_tips).positiveText(R.string.lab_yes).negativeText(R.string.lab_no).onPositive { _: MaterialDialog?, _: DialogAction? ->
+                        viewModel.delete(senderId)
+                        XToastUtils.success(R.string.delete_sender_toast)
+                        popToBack()
+                    }.show()
                     return
                 }
 
@@ -203,6 +194,7 @@ class ServerchanFragment : BaseFragment<FragmentSendersServerchanBinding?>(), Vi
         } catch (e: Exception) {
             XToastUtils.error(e.message.toString())
             e.printStackTrace()
+            Log.e(TAG, "onClick: $e")
         }
     }
 

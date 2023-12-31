@@ -6,30 +6,36 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.location.Geocoder
+import android.net.ConnectivityManager
+import android.net.wifi.WifiManager
 import android.os.Build
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.multidex.MultiDex
 import androidx.work.Configuration
 import com.gyf.cactus.Cactus
 import com.gyf.cactus.callback.CactusCallback
 import com.gyf.cactus.ext.cactus
+import com.hjq.language.MultiLanguages
+import com.hjq.language.OnLanguageListener
 import com.idormy.sms.forwarder.activity.MainActivity
 import com.idormy.sms.forwarder.core.Core
 import com.idormy.sms.forwarder.database.AppDatabase
 import com.idormy.sms.forwarder.database.repository.*
 import com.idormy.sms.forwarder.entity.SimInfo
+import com.idormy.sms.forwarder.receiver.BatteryReceiver
 import com.idormy.sms.forwarder.receiver.CactusReceiver
-import com.idormy.sms.forwarder.service.BatteryService
+import com.idormy.sms.forwarder.receiver.LockScreenReceiver
+import com.idormy.sms.forwarder.receiver.NetworkChangeReceiver
 import com.idormy.sms.forwarder.service.ForegroundService
-import com.idormy.sms.forwarder.service.HttpService
-import com.idormy.sms.forwarder.service.NetworkStateService
+import com.idormy.sms.forwarder.service.HttpServerService
+import com.idormy.sms.forwarder.service.LocationService
 import com.idormy.sms.forwarder.utils.*
 import com.idormy.sms.forwarder.utils.sdkinit.UMengInit
 import com.idormy.sms.forwarder.utils.sdkinit.XBasicLibInit
 import com.idormy.sms.forwarder.utils.sdkinit.XUpdateInit
-import com.idormy.sms.forwarder.utils.task.AlarmUtils
 import com.idormy.sms.forwarder.utils.tinker.TinkerLoadLibrary
+import com.king.location.LocationClient
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -40,6 +46,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
+@Suppress("DEPRECATION")
 class App : Application(), CactusCallback, Configuration.Provider by Core {
 
     val applicationScope = CoroutineScope(SupervisorJob())
@@ -68,26 +75,25 @@ class App : Application(), CactusCallback, Configuration.Provider by Core {
         /**
          * @return 当前app是否是调试开发模式
          */
-        val isDebug: Boolean
-            get() = BuildConfig.DEBUG
+        var isDebug: Boolean = BuildConfig.DEBUG
 
-        //Cactus结束时间
-        val mEndDate = MutableLiveData<String>()
-
-        //Cactus上次存活时间
-        val mLastTimer = MutableLiveData<String>()
-
-        //Cactus存活时间
-        val mTimer = MutableLiveData<String>()
-
-        //Cactus运行状态
-        val mStatus = MutableLiveData<Boolean>().apply { value = true }
-
+        //Cactus相关
+        val mEndDate = MutableLiveData<String>() //结束时间
+        val mLastTimer = MutableLiveData<String>() //上次存活时间
+        val mTimer = MutableLiveData<String>() //存活时间
+        val mStatus = MutableLiveData<Boolean>().apply { value = true } //运行状态
         var mDisposable: Disposable? = null
+
+        //Location相关
+        val LocationClient by lazy { LocationClient(context) }
+        val Geocoder by lazy { Geocoder(context) }
+        val DateFormat by lazy { SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()) }
     }
 
     override fun attachBaseContext(base: Context) {
-        super.attachBaseContext(base)
+        //super.attachBaseContext(base)
+        // 绑定语种
+        super.attachBaseContext(MultiLanguages.attach(base))
         //解决4.x运行崩溃的问题
         MultiDex.install(this)
     }
@@ -113,30 +119,50 @@ class App : Application(), CactusCallback, Configuration.Provider by Core {
             }
 
             //启动前台服务
-            val serviceIntent = Intent(this, ForegroundService::class.java)
-            serviceIntent.action = "START"
+            val foregroundServiceIntent = Intent(this, ForegroundService::class.java)
+            foregroundServiceIntent.action = "START"
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(serviceIntent)
+                startForegroundService(foregroundServiceIntent)
             } else {
-                startService(serviceIntent)
-            }
-
-            //网络状态监听
-            Intent(this, NetworkStateService::class.java).also {
-                startService(it)
-            }
-
-            //电池状态监听
-            Intent(this, BatteryService::class.java).also {
-                startService(it)
+                startService(foregroundServiceIntent)
             }
 
             //启动HttpServer
             if (HttpServerUtils.enableServerAutorun) {
-                Intent(this, HttpService::class.java).also {
+                Intent(this, HttpServerService::class.java).also {
                     startService(it)
                 }
             }
+
+            //启动LocationService
+            if (SettingUtils.enableLocation) {
+                val locationServiceIntent = Intent(this, LocationService::class.java)
+                locationServiceIntent.action = "START"
+                startService(locationServiceIntent)
+            }
+
+            //监听电量&充电状态变化
+            val batteryReceiver = BatteryReceiver()
+            val batteryFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+            registerReceiver(batteryReceiver, batteryFilter)
+
+            //监听网络变化
+            val networkReceiver = NetworkChangeReceiver()
+            val networkFilter = IntentFilter().apply {
+                addAction(ConnectivityManager.CONNECTIVITY_ACTION)
+                addAction(WifiManager.WIFI_STATE_CHANGED_ACTION)
+                addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION)
+                //addAction("android.intent.action.DATA_CONNECTION_STATE_CHANGED")
+            }
+            registerReceiver(networkReceiver, networkFilter)
+
+            //监听锁屏&解锁
+            val lockScreenReceiver = LockScreenReceiver()
+            val lockScreenFilter = IntentFilter().apply {
+                addAction(Intent.ACTION_SCREEN_OFF)
+                addAction(Intent.ACTION_SCREEN_ON)
+            }
+            registerReceiver(lockScreenReceiver, lockScreenFilter)
 
             //Cactus 集成双进程前台服务，JobScheduler，onePix(一像素)，WorkManager，无声音乐
             if (SettingUtils.enableCactus) {
@@ -189,6 +215,7 @@ class App : Application(), CactusCallback, Configuration.Provider by Core {
 
         } catch (e: Exception) {
             e.printStackTrace()
+            Log.e(TAG, "onCreate: $e")
         }
     }
 
@@ -199,6 +226,9 @@ class App : Application(), CactusCallback, Configuration.Provider by Core {
         Core.init(this)
         // 配置文件初始化
         SharedPreference.init(applicationContext)
+        // 初始化日志打印
+        isDebug = SettingUtils.enableDebugMode
+        Log.init(applicationContext)
         // 转发历史工具类初始化
         HistoryUtils.init(applicationContext)
         // X系列基础库初始化
@@ -207,10 +237,18 @@ class App : Application(), CactusCallback, Configuration.Provider by Core {
         XUpdateInit.init(this)
         // 运营统计数据
         UMengInit.init(this)
-        // 定时任务初始化
-        AlarmUtils.initialize(this)
-        // 三方时间库初始化
-        //AndroidThreeTen.init(this)
+        // 初始化语种切换框架
+        MultiLanguages.init(this)
+        // 设置语种变化监听器
+        MultiLanguages.setOnLanguageListener(object : OnLanguageListener {
+            override fun onAppLocaleChange(oldLocale: Locale, newLocale: Locale) {
+                Log.i(TAG, "监听到应用切换了语种，旧语种：$oldLocale，新语种：$newLocale")
+            }
+
+            override fun onSystemLocaleChange(oldLocale: Locale, newLocale: Locale) {
+                Log.i(TAG, "监听到系统切换了语种，旧语种：" + oldLocale + "，新语种：" + newLocale + "，是否跟随系统：" + MultiLanguages.isSystemLanguage(this@App))
+            }
+        })
     }
 
     @SuppressLint("CheckResult")

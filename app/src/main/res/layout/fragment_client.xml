@@ -35,16 +35,15 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:text="@string/server_settings_tips2"
-                    android:textSize="10sp"
+                    android:textSize="@dimen/text_size_mini"
                     tools:ignore="SmallSp" />
 
             </LinearLayout>
 
             <LinearLayout
-                style="@style/settingBarStyle"
+                style="@style/BarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingEnd="15dp"
                 tools:ignore="RtlSymmetry">
 
                 <TextView
@@ -64,7 +63,7 @@
             </LinearLayout>
 
             <LinearLayout
-                style="@style/settingBarStyle"
+                style="@style/BarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -88,7 +87,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
                         android:text="@string/safety_measures_tips"
-                        android:textSize="10sp"
+                        android:textSize="@dimen/text_size_mini"
                         tools:ignore="SmallSp" />
 
                 </LinearLayout>
@@ -125,10 +124,9 @@
 
             <LinearLayout
                 android:id="@+id/layout_sign_key"
-                style="@style/settingBarStyle"
+                style="@style/BarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingEnd="15dp"
                 tools:ignore="RtlSymmetry">
 
                 <TextView
@@ -150,7 +148,7 @@
                     android:maxLines="5"
                     android:minLines="1"
                     android:scrollbars="vertical"
-                    android:textSize="10sp"
+                    android:textSize="@dimen/text_size_mini"
                     tools:ignore="LabelFor,SmallSp" />
 
             </LinearLayout>
@@ -217,7 +215,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:text="@string/click_test_button_first"
-                    android:textSize="10sp"
+                    android:textSize="@dimen/text_size_mini"
                     tools:ignore="SmallSp" />
 
             </LinearLayout>

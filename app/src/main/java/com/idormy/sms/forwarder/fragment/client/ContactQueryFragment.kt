@@ -1,6 +1,5 @@
 package com.idormy.sms.forwarder.fragment.client
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,6 +22,7 @@ import com.idormy.sms.forwarder.utils.Base64
 import com.idormy.sms.forwarder.utils.DataProvider
 import com.idormy.sms.forwarder.utils.EVENT_KEY_PHONE_NUMBERS
 import com.idormy.sms.forwarder.utils.HttpServerUtils
+import com.idormy.sms.forwarder.utils.Log
 import com.idormy.sms.forwarder.utils.PhoneUtils
 import com.idormy.sms.forwarder.utils.PlaceholderHelper
 import com.idormy.sms.forwarder.utils.RSACrypt
@@ -41,19 +41,19 @@ import com.xuexiang.xpage.base.XPageActivity
 import com.xuexiang.xpage.core.PageOption
 import com.xuexiang.xrouter.utils.TextUtils
 import com.xuexiang.xui.adapter.recyclerview.RecyclerViewHolder
-import com.xuexiang.xui.utils.ResUtils
 import com.xuexiang.xui.utils.SnackbarUtils
 import com.xuexiang.xui.widget.actionbar.TitleBar
 import com.xuexiang.xui.widget.searchview.MaterialSearchView
 import com.xuexiang.xutil.data.ConvertTools
+import com.xuexiang.xutil.resource.ResUtils.getColor
 import com.xuexiang.xutil.system.ClipboardUtils
 import me.samlss.broccoli.Broccoli
 
-@Suppress("PropertyName", "DEPRECATION")
+@Suppress("PrivatePropertyName")
 @Page(name = "远程查话簿")
 class ContactQueryFragment : BaseFragment<FragmentClientContactQueryBinding?>() {
 
-    val TAG: String = ContactQueryFragment::class.java.simpleName
+    private val TAG: String = ContactQueryFragment::class.java.simpleName
     private var mAdapter: SimpleDelegateAdapter<ContactInfo>? = null
     private var keyword: String = ""
 
@@ -124,6 +124,7 @@ class ContactQueryFragment : BaseFragment<FragmentClientContactQueryBinding?>() 
                     .addPlaceholder(PlaceholderHelper.getParameter(holder.findView(R.id.iv_call)))
                     .addPlaceholder(PlaceholderHelper.getParameter(holder.findView(R.id.iv_reply)))
             }
+
         }
 
         val delegateAdapter = DelegateAdapter(virtualLayoutManager)
@@ -138,7 +139,7 @@ class ContactQueryFragment : BaseFragment<FragmentClientContactQueryBinding?>() 
         binding!!.searchView.setOnQueryTextListener(object : MaterialSearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
                 SnackbarUtils.Indefinite(view, String.format(getString(R.string.search_keyword), query)).info()
-                    .actionColor(ResUtils.getColor(R.color.xui_config_color_white))
+                    .actionColor(getColor(R.color.xui_config_color_white))
                     .setAction(getString(R.string.clear)) {
                         keyword = ""
                         loadRemoteData()
@@ -211,8 +212,9 @@ class ContactQueryFragment : BaseFragment<FragmentClientContactQueryBinding?>() 
                     requestMsg = RSACrypt.encryptByPublicKey(requestMsg, publicKey)
                     Log.i(TAG, "requestMsg: $requestMsg")
                 } catch (e: Exception) {
-                    XToastUtils.error(ResUtils.getString(R.string.request_failed) + e.message)
+                    XToastUtils.error(getString(R.string.request_failed) + e.message)
                     e.printStackTrace()
+                    Log.e(TAG, e.toString())
                     return
                 }
                 postRequest.upString(requestMsg)
@@ -226,8 +228,9 @@ class ContactQueryFragment : BaseFragment<FragmentClientContactQueryBinding?>() 
                     requestMsg = ConvertTools.bytes2HexString(encryptCBC)
                     Log.i(TAG, "requestMsg: $requestMsg")
                 } catch (e: Exception) {
-                    XToastUtils.error(ResUtils.getString(R.string.request_failed) + e.message)
+                    XToastUtils.error(getString(R.string.request_failed) + e.message)
                     e.printStackTrace()
+                    Log.e(TAG, e.toString())
                     return
                 }
                 postRequest.upString(requestMsg)
@@ -259,16 +262,16 @@ class ContactQueryFragment : BaseFragment<FragmentClientContactQueryBinding?>() 
                     }
                     val resp: BaseResponse<List<ContactInfo>?> = Gson().fromJson(json, object : TypeToken<BaseResponse<List<ContactInfo>?>>() {}.type)
                     if (resp.code == 200) {
-                        //XToastUtils.success(ResUtils.getString(R.string.request_succeeded))
                         mAdapter!!.refresh(resp.data)
                         binding!!.refreshLayout.finishRefresh()
                         binding!!.recyclerView.scrollToPosition(0)
                     } else {
-                        XToastUtils.error(ResUtils.getString(R.string.request_failed) + resp.msg)
+                        XToastUtils.error(getString(R.string.request_failed) + resp.msg)
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    XToastUtils.error(ResUtils.getString(R.string.request_failed) + response)
+                    Log.e(TAG, e.toString())
+                    XToastUtils.error(getString(R.string.request_failed) + response)
                 }
             }
         })

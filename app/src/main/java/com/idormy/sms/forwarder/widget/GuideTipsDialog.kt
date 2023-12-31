@@ -10,13 +10,13 @@ import com.idormy.sms.forwarder.R
 import com.idormy.sms.forwarder.core.http.api.ApiService.IGetService
 import com.idormy.sms.forwarder.core.http.callback.NoTipCallBack
 import com.idormy.sms.forwarder.core.http.entity.TipInfo
+import com.idormy.sms.forwarder.utils.AppUtils
 import com.idormy.sms.forwarder.utils.SharedPreference
 import com.xuexiang.constant.TimeConstants
 import com.xuexiang.xaop.annotation.SingleClick
 import com.xuexiang.xhttp2.XHttp
 import com.xuexiang.xhttp2.cache.model.CacheMode
 import com.xuexiang.xui.widget.dialog.BaseDialog
-import com.xuexiang.xutil.app.AppUtils
 import com.zzhoujay.richtext.RichText
 
 /**
@@ -25,6 +25,7 @@ import com.zzhoujay.richtext.RichText
  * @author xuexiang
  * @since 2019-08-22 17:02
  */
+@Suppress("SameReturnValue")
 class GuideTipsDialog(context: Context?, tips: List<TipInfo>) :
     BaseDialog(context, R.layout.dialog_guide_tips), View.OnClickListener,
     CompoundButton.OnCheckedChangeListener {
@@ -85,10 +86,12 @@ class GuideTipsDialog(context: Context?, tips: List<TipInfo>) :
                         mTvPrevious!!.isEnabled = false
                         mTvNext!!.isEnabled = true
                     }
+
                     mTips!!.size - 1 -> {
                         mTvPrevious!!.isEnabled = true
                         mTvNext!!.isEnabled = false
                     }
+
                     else -> {
                         mTvPrevious!!.isEnabled = true
                         mTvNext!!.isEnabled = true
